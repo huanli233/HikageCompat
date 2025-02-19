@@ -66,6 +66,20 @@ modifications to their custom views.
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:gravity="center" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Click Me!"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#FF0000"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
 </LinerLayout>
 ```
 
@@ -95,10 +109,10 @@ setContentView {
                 android.text = "Hello, World!"
                 android.textSize = 16.sp
                 android.textColor = Color.BLACK
-                android.marginTop = 16.dp
-                android.marginStart = 16.dp
-                android.marginEnd = 16.dp
-                android.marginBottom = 16.dp
+                android.layout_marginTop = 16.dp
+                android.layout_marginStart = 16.dp
+                android.layout_marginEnd = 16.dp
+                android.layout_marginBottom = 16.dp
                 android.gravity = Gravity.CENTER
                 // Or use string form to set properties (note that there is no spelling check).
                 namespace("android") {
@@ -122,6 +136,23 @@ setContentView {
                 doOnLayout {
                     // ...
                 }
+            }
+        )
+        // Use third-party views.
+        View<MaterialButton>(
+            attrs = {
+                android.id = R.id.button
+                android.layout_width = WRAP_CONTENT
+                android.layout_height = WRAP_CONTENT
+                android.text = "Click Me!"
+                android.textSize = 16.sp
+                android.textColor = Color.WHITE
+                android.backgroundTint = Color.RED
+                android.layout_marginTop = 16.dp
+                android.layout_marginStart = 16.dp
+                android.layout_marginEnd = 16.dp
+                android.layout_marginBottom = 16.dp
+                android.gravity = Gravity.CENTER
             }
         )
     }
@@ -150,8 +181,35 @@ val root = Hikageable(
     ) {
         // ...
     }
+}.toView() // Convert to standard view.
+```
+
+## Preview with Android Studio
+
+Unlike XML, Hikage does not support live previews, but you can inherit the `HikagePreview` provided by Hikage,
+and pass in your layout, and then view the preview in the pane on the right of Android Studio.
+
+You can also use `isInEditMode` in your code to avoid displaying actual logical code that cannot be displayed in preview mode.
+
+```kotlin
+class MyPreview(context: Context, attrs: AttributeSet?) : HikagePreview(context, attrs) {
+
+    override fun onPreview(): HikageView {
+        // Return to your layout.
+        return Hikageable {
+            Button(
+                attrs = {
+                    android.layout_width = WRAP_CONTENT
+                    android.layout_height = WRAP_CONTENT
+                    android.text = "Click Me!"
+                }
+            )
+        }
+    }
 }
 ```
+
+Note `HikagePreview` is for preview only and should not be used in actual code, otherwise an exception will be thrown.
 
 Hikage may have plans to support Java, but Kotlin is still recommended.
 

@@ -62,6 +62,20 @@ Android View 中的属性将配合 Gradle 插件实现自动生成，你可以�
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:gravity="center" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Click Me!"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#FF0000"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
 </LinerLayout>
 ```
 
@@ -91,10 +105,10 @@ setContentView {
                 android.text = "Hello, World!"
                 android.textSize = 16.sp
                 android.textColor = Color.BLACK
-                android.marginTop = 16.dp
-                android.marginStart = 16.dp
-                android.marginEnd = 16.dp
-                android.marginBottom = 16.dp
+                android.layout_marginTop = 16.dp
+                android.layout_marginStart = 16.dp
+                android.layout_marginEnd = 16.dp
+                android.layout_marginBottom = 16.dp
                 android.gravity = Gravity.CENTER
                 // 或者使用字符串形式设置属性 (注意没有拼写检查)
                 namespace("android") {
@@ -118,6 +132,23 @@ setContentView {
                 doOnLayout {
                     // ...
                 }
+            }
+        )
+        // 使用第三方 View
+        View<MaterialButton>(
+            attrs = {
+                android.id = R.id.button
+                android.layout_width = WRAP_CONTENT
+                android.layout_height = WRAP_CONTENT
+                android.text = "Click Me!"
+                android.textSize = 16.sp
+                android.textColor = Color.WHITE
+                android.backgroundTint = Color.RED
+                android.layout_marginTop = 16.dp
+                android.layout_marginStart = 16.dp
+                android.layout_marginEnd = 16.dp
+                android.layout_marginBottom = 16.dp
+                android.gravity = Gravity.CENTER
             }
         )
     }
@@ -145,8 +176,34 @@ val root = Hikageable(
     ) {
         // ...
     }
+}.toView() // 转换为标准 View
+```
+
+## 使用 Android Studio 预览
+
+不同于 XML，Hikage 不支持实时预览，但你可以继承于 Hikage 提供的 `HikagePreview` 在其中传入你的布局，然后在 Android Studio 右侧窗格中查看预览。
+
+你还可以在代码中使用 `isInEditMode` 来避免在预览模式中展示无法显示的实际逻辑代码。
+
+```kotlin
+class MyPreview(context: Context, attrs: AttributeSet?) : HikagePreview(context, attrs) {
+
+    override fun onPreview(): HikageView {
+        // 返回你的布局
+        return Hikageable {
+            Button(
+                attrs = {
+                    android.layout_width = WRAP_CONTENT
+                    android.layout_height = WRAP_CONTENT
+                    android.text = "Click Me!"
+                }
+            )
+        }
+    }
 }
 ```
+
+注意 `HikagePreview` 仅用于预览，不应该在实际代码中使用，否则会抛出异常。
 
 Hikage 可能会有计划支持 Java，但依然推荐使用 Kotlin。
 
