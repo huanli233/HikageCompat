@@ -22,13 +22,13 @@
 
 名称取自 「BanG Dream It's MyGO!!!!!」 中的原创歌曲《春日影》(Haru**hikage**)。
 
-<details><summary>点击布局春日影</summary><pre>
+<details><summary>为什么要...</summary>
+  <div align="center">
+  <img src="https://i0.hdslb.com/bfs/garb/item/fa1ffd8af57626ca4f6bd562bac097239d36838b.png" width = "100" height = "100" alt="LOGO"/>
 
-<img src="https://i0.hdslb.com/bfs/garb/item/fa1ffd8af57626ca4f6bd562bac097239d36838b.png@100w_100h.avif" width = "50" height = "50" alt="LOGO"/>
-
-**なんで春日影レイアウト使いの？**
-
-</pre></details>
+  **なんで春日影レイアウト使いの？**
+  </div>
+</details>
 
 不同于 Jetpack Compose 的声明式 UI，Hikage 专注于 Android 原生平台，它的设计目标是为了让开发者能够快速构建 UI 并可直接支持 Android 原生组件。
 
@@ -82,8 +82,19 @@ Android View 中的属性将配合 Gradle 插件实现自动生成，你可以�
 > 使用 Hikage
 
 ```kotlin
-// 在 Activity 中，可以使用扩展方法
-setContentView {
+// 使用 Hikage 构建布局，需要有一个 UI Context
+val context: Context
+// 确保 Context 为 UI Context
+if (!context.isUiContext) return
+// 开始构建布局，请注意确保 context 参数已初始化
+// 根据 Android 原生组件特性，布局构建后属性 (`attrs`) 将固定，无法动态修改
+val hikage = Hikageable(
+    context = context,
+    // 你还可以自定义每个 View 被创建后的操作
+    onViewCreated = { name, view ->
+        // ...
+    }
+) {
     LinearLayout(
         attrs = {
             android.layout_width = MATCH_PARENT
@@ -97,9 +108,10 @@ setContentView {
         }
     ) {
         TextView(
+            // 使用字符串形式设置 ID，可以使用大驼峰、小驼峰或下划线形式，在生成时将被转换为小驼峰形式
+            id = "text_view",
             // 你可以直接使用 attrs 来设置属性，无需考虑它们属于谁
             attrs = {
-                android.id = R.id.text_view
                 android.layout_width = WRAP_CONTENT
                 android.layout_height = WRAP_CONTENT
                 android.text = "Hello, World!"
@@ -136,8 +148,8 @@ setContentView {
         )
         // 使用第三方 View
         View<MaterialButton>(
+            id = "button",
             attrs = {
-                android.id = R.id.button
                 android.layout_width = WRAP_CONTENT
                 android.layout_height = WRAP_CONTENT
                 android.text = "Click Me!"
@@ -153,30 +165,19 @@ setContentView {
         )
     }
 }
-// 你也可以直接构建根布局，但是需要有一个 UI Context
-val context: Context
-// 确保 Context 为 UI Context
-if (!context.isUiContext) return
-// 它会返回第一个布局的类型 (泛型)，例如下方的 LinearLayout
-// 布局会被立即构建且不可修改，请注意确保 context 参数已初始化
-val root = Hikageable(
-    context = context,
-    // 你还可以自定义每个 View 被创建后的操作
-    onViewCreated = { name, view ->
-        // ...
-    }
-) {
-    LinearLayout(
-        attrs = {
-            // ...
-        },
-        lpparams = {
-            // ...
-        }
-    ) {
-        // ...
-    }
-}.toView() // 转换为标准 View
+// 获取根布局
+val root = hikage.root
+// 你还可以将其转换为第一个布局的类型，等价于 hikage.root as LinearLayout
+// 得益于 Kotlin 的特性，直接使用 Hikageable(...) { ... }.rootAsType() 可以不需要填写泛型
+val root = hikage.rootAsType<LinearLayout>()
+// 设置到 Activity 上
+setContentView(root)
+// 获取构建的布局内部组件 (第一种方案)
+val textView = hikage.textView
+val button = hikage.button
+// 获取构建的布局内部组件 (第二种方案)
+val textView = hikage.get<TextView>("text_view")
+val button = hikage.get<MaterialButton>("button")
 ```
 
 ## 使用 Android Studio 预览
@@ -188,7 +189,7 @@ val root = Hikageable(
 ```kotlin
 class MyPreview(context: Context, attrs: AttributeSet?) : HikagePreview(context, attrs) {
 
-    override fun onPreview(): HikageView {
+    override fun onPreview(): Hikage {
         // 返回你的布局
         return Hikageable {
             Button(

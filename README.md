@@ -22,13 +22,13 @@ This is an Android responsive UI build tool designed to focus on **Real-time cod
 
 The name is taken from the original song "Haru**hikage**" in "BanG Dream It's MyGO!!!!!".
 
-<details><summary>Click to layout Haruhikage</summary><pre>
+<details><summary>Why...</summary>
+  <div align="center">
+  <img src="https://i0.hdslb.com/bfs/garb/item/fa1ffd8af57626ca4f6bd562bac097239d36838b.png" width = "100" height = "100" alt="LOGO"/>
 
-<img src="https://i0.hdslb.com/bfs/garb/item/fa1ffd8af57626ca4f6bd562bac097239d36838b.png@100w_100h.avif" width = "50" height = "50" alt="LOGO"/>
-
-**なんで春日影レイアウト使いの？**
-
-</pre></details>
+  **なんで春日影レイアウト使いの？**
+  </div>
+</details>
 
 Unlike Jetpack Compose's declarative UI, Hikage focuses on Android native platforms,
 and its design goal is to enable developers to quickly build UIs and directly support Android native components.
@@ -86,8 +86,20 @@ modifications to their custom views.
 > Using Hikage
 
 ```kotlin
-// In Activity, you can use the extension function.
-setContentView {
+// Using Hikage to build a layout requires a UI Context.
+val context: Context
+// Make sure the Context is UI Context.
+if (!context.isUiContext) return
+// Start building the layout, be careful to make sure the context parameter is initialized.
+// According to the Android native component features,
+// the attributes (`attrs`) after layout construction will be fixed and cannot be modified dynamically.
+val root = Hikageable(
+    context = context,
+    // You can also customize the actions after each view is created.
+    onViewCreated = { name, view ->
+        // ...
+    }
+) {
     LinearLayout(
         attrs = {
             android.layout_width = MATCH_PARENT
@@ -101,9 +113,11 @@ setContentView {
         }
     ) {
         TextView(
+            // Set the ID using string form, you can use large camel, small camel,
+            // or underscore form, which will be converted to small camel form when generated.
+            id = "text_view",
             // You can set properties directly using attrs without considering who they belong to.
             attrs = {
-                android.id = R.id.text_view
                 android.layout_width = WRAP_CONTENT
                 android.layout_height = WRAP_CONTENT
                 android.text = "Hello, World!"
@@ -140,8 +154,8 @@ setContentView {
         )
         // Use third-party views.
         View<MaterialButton>(
+            id = "button",
             attrs = {
-                android.id = R.id.button
                 android.layout_width = WRAP_CONTENT
                 android.layout_height = WRAP_CONTENT
                 android.text = "Click Me!"
@@ -157,31 +171,19 @@ setContentView {
         )
     }
 }
-// You can also build the root layout directly, but you need to have a UI Context.
-val context: Context
-// Make sure the Context is UI Context.
-if (!context.isUiContext) return
-// It returns the type (generic) of the first layout, such as LinearLayout below.
-// The layout will be built immediately and cannot be modified.
-// Please be careful to make sure the context parameter is initialized.
-val root = Hikageable(
-    context = context,
-    // You can also customize the actions after each view is created.
-    onViewCreated = { name, view ->
-        // ...
-    }
-) {
-    LinearLayout(
-        attrs = {
-            // ...
-        },
-        lpparams = {
-            // ...
-        }
-    ) {
-        // ...
-    }
-}.toView() // Convert to standard view.
+// Get the root layout.
+val root = hikage.root
+// You can also convert it to the type of the first layout, equivalent to hikage.root as LinearLayout.
+// Thanks to Kotlin's features, using Hikageable(...) { ... }.rootAsType() directly does not require filling in generics.
+val root = hikage.rootAsType<LinearLayout>()
+// Set to Activity.
+setContentView(root)
+// Get the built layout internal components (first solution).
+val textView = hikage.textView
+val button = hikage.button
+// Get the built layout internal components (second solution).
+val textView = hikage.get<TextView>("text_view")
+val button = hikage.get<MaterialButton>("button")
 ```
 
 ## Preview with Android Studio
@@ -194,7 +196,7 @@ You can also use `isInEditMode` in your code to avoid displaying actual logical 
 ```kotlin
 class MyPreview(context: Context, attrs: AttributeSet?) : HikagePreview(context, attrs) {
 
-    override fun onPreview(): HikageView {
+    override fun onPreview(): Hikage {
         // Return to your layout.
         return Hikageable {
             Button(
