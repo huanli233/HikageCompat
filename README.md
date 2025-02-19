@@ -93,7 +93,7 @@ if (!context.isUiContext) return
 // Start building the layout, be careful to make sure the context parameter is initialized.
 // According to the Android native component features,
 // the attributes (`attrs`) after layout construction will be fixed and cannot be modified dynamically.
-val root = Hikageable(
+val hikage = Hikageable(
     context = context,
     // You can also customize the actions after each view is created.
     onViewCreated = { name, view ->
