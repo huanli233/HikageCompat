@@ -29,6 +29,5 @@ class MainActivity : AppBindingActivity<ActivityMainBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // TODO: Start your coding here.
     }
 }
