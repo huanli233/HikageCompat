@@ -48,7 +48,7 @@ modifications to their custom views.
 > Original layout
 
 ```xml
-<LinerLayout
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -80,7 +80,7 @@ modifications to their custom views.
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:gravity="center" />
-</LinerLayout>
+</LinearLayout>
 ```
 
 > Using Hikage

@@ -44,7 +44,7 @@ Android View 中的属性将配合 Gradle 插件实现自动生成，你可以�
 > 原始布局
 
 ```xml
-<LinerLayout
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -76,7 +76,7 @@ Android View 中的属性将配合 Gradle 插件实现自动生成，你可以�
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:gravity="center" />
-</LinerLayout>
+</LinearLayout>
 ```
 
 > 使用 Hikage
