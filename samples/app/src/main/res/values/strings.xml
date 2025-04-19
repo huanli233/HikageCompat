@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Hikage Demo</string>
+    <string name="text_username">Username</string>
+    <string name="text_password">Password</string>
+    <string name="text_gender_man">Man</string>
+    <string name="text_gender_woman">Woman</string>
+    <string name="text_enable_notification">Enable Notification</string>
+    <string name="text_description">As you can see, all layouts are created dynamically through code, and you can customize the layout anywhere.</string>
+    <string name="text_submit">Submit</string>
+    <string name="login_info">Login Info</string>
+    <string name="login_info_description">Username: %1$s\nPassword: %1$s</string>
+    <string name="login_info_not_fill_tip">Please fill in all fields</string>
+    <string name="text_welcome">Welcome to use Hikage!</string>
+</resources>

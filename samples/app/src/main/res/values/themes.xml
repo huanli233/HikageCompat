@@ -1,0 +1,6 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.DefaultAppTheme" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <style name="Theme.DefaultAppTheme" parent="Base.Theme.DefaultAppTheme" />
+</resources>

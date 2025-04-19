@@ -1,3 +1,4 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -11,6 +12,30 @@ plugins {
 }
 sweetProperty {
     rootProject { all { isEnable = false } }
+    project(
+        ":hikage-core",
+        ":hikage-core-lint",
+        ":hikage-extension",
+        ":hikage-extension-compose",
+        ":hikage-extension-betterandroid",
+        ":hikage-compiler",
+        ":hikage-widget-androidx",
+        ":hikage-widget-material"
+    ) {
+        sourcesCode {
+            isEnableRestrictedAccess = true
+        }
+    }
 }
 rootProject.name = "Hikage"
-include(":app")
+include(":samples:app")
+include(
+    ":hikage-core",
+    ":hikage-core-lint",
+    ":hikage-extension",
+    ":hikage-extension-compose",
+    ":hikage-extension-betterandroid",
+    ":hikage-compiler",
+    ":hikage-widget-androidx",
+    ":hikage-widget-material"
+)
