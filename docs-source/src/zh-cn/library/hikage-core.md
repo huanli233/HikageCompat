@@ -388,6 +388,43 @@ inline fun <reified LP : ViewGroup.LayoutParams> Hikage.Performer<LP>.MyCustomVi
 
 每次都手动实现这样复杂的函数看起来会很繁琐，如果你希望能够自动生成组件函数，可以引入并参考 [hikage-compiler](../library/hikage-compiler.md) 模块。
 
+### 组合与拆分布局
+
+在搭建 UI 时，我们通常会将可复用的布局作为组件来使用，如果你不想每一个部分都使用原生的自定义 `View` 将其分别定制，你可以直接将布局逻辑部分进行拆分。
+
+Hikage 支持将布局拆分为多个部分进行组合，你可以在任何地方使用 `Hikageable` 函数创建一个新的 `Hikage.Delegate` 对象。
+
+> 示例如下
+
+```kotlin
+// 假设这是你的主布局
+val mainLayout = Hikageable {
+    LinearLayout(
+        lparams = LayoutParams(matchParent = true),
+        init = {
+            orientation = LinearLayout.VERTICAL
+        }
+    ) {
+        TextView {
+            text = "Hello, World!"
+        }
+        // 组合子布局
+        Layout(subLayout)
+    }
+}
+// 假设这是你的布局子模块
+// 由于上层布局使用了 LinearLayout，所以你可以为子布局声明 LinearLayout.LayoutParams
+val subLayout = Hikageable<LinearLayout.LayoutParams> {
+    TextView(
+        lparams = LayoutParams {
+            topMargin = 16.dp
+        }
+    ) {
+        text = "Hello, Sub World!"
+    }
+}
+```
+
 ### 自定义布局装载器
 
 Hikage 支持自定义布局装载器并同时兼容 `LayoutInflater.Factory2`，你可以通过以下方式自定义在 Hikage 布局装载过程中的事件和监听。

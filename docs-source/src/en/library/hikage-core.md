@@ -404,6 +404,46 @@ inline fun <reified LP : ViewGroup.LayoutParams> Hikage.Performer<LP>.MyCustomVi
 It would seem tedious to implement such complex functions manually every time.
 If you want to be able to automatically generate component functions, you can introduce and refer to the [hikage-compiler](../library/hikage-compiler.md) module.
 
+### Combination and Disassembly Layout
+
+When building a UI, we usually use reusable layouts as components.
+
+If you don't want each part to be customized separately using a native custom `View`, you can split the layout logic parts directly.
+
+Hikage supports splitting layouts into multiple parts and combining them, you can use the `Hikageable` function anywhere to create a new `Hikage.Delegate` object.
+
+> The following example
+
+```kotlin
+// Assume this is your main layout.
+val mainLayout = Hikageable {
+    LinearLayout(
+        lparams = LayoutParams(matchParent = true),
+        init = {
+            orientation = LinearLayout.VERTICAL
+        }
+    ) {
+        TextView {
+            text = "Hello, World!"
+        }
+        // Combination sublayout.
+        Layout(subLayout)
+    }
+}
+// Assume this is your layout submodule.
+// Since the upper layout uses LinearLayout,
+// you can declare LinearLayout.LayoutParams for the sublayout.
+val subLayout = Hikageable<LinearLayout.LayoutParams> {
+    TextView(
+        lparams = LayoutParams {
+            topMargin = 16.dp
+        }
+    ) {
+        text = "Hello, Sub World!"
+    }
+}
+```
+
 ### Custom Layout Factory
 
 Hikage supports custom layout factories and is compatible with `LayoutInflater.Factory2`.
