@@ -10,7 +10,12 @@
 
 ## hikage-core
 
-### 1.0.0 | 2025.04.20 &ensp;<Badge type="tip" text="最新" vertical="middle" />
+### 1.0.1 | 2025.05.06 &ensp;<Badge type="tip" text="最新" vertical="middle" />
+
+- 修复 KSP 源码没有成功发布的问题
+- 新增状态管理功能
+
+### 1.0.0 | 2025.04.20 &ensp;<Badge type="warning" text="过旧" vertical="middle" />
 
 - 首个版本提交至 Maven
 
