@@ -27,10 +27,9 @@ import android.os.Bundle
 import android.text.InputType
 import android.widget.LinearLayout
 import androidx.core.view.setPadding
+import androidx.core.widget.doOnTextChanged
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.highcapable.betterandroid.ui.extension.view.textToString
 import com.highcapable.betterandroid.ui.extension.view.toast
 import com.highcapable.hikage.demo.R
 import com.highcapable.hikage.demo.ui.base.BaseActivity
@@ -54,8 +53,8 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView {
-            lateinit var usernameInput: TextInputEditText
-            lateinit var passwordInput: TextInputEditText
+            var username = ""
+            var password = ""
             CoordinatorLayout(
                 lparams = LayoutParams(matchParent = true)
             ) {
@@ -80,10 +79,13 @@ class MainActivity : BaseActivity() {
                             hint = stringResource(R.string.text_username)
                         }
                     ) {
-                        usernameInput = TextInputEditText(
+                        TextInputEditText(
                             lparams = LayoutParams(widthMatchParent = true)
                         ) {
                             isSingleLine = true
+                            doOnTextChanged { text, _, _, _ -> 
+                                username = text.toString()
+                            }
                         }
                     }
                     TextInputLayout(
@@ -95,11 +97,14 @@ class MainActivity : BaseActivity() {
                             endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
                         }
                     ) {
-                        passwordInput = TextInputEditText(
+                        TextInputEditText(
                             lparams = LayoutParams(widthMatchParent = true)
                         ) {
                             isSingleLine = true
                             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                            doOnTextChanged { text, _, _, _ -> 
+                                password = text.toString()
+                            }
                         }
                     }
                     ChipGroup(
@@ -159,8 +164,6 @@ class MainActivity : BaseActivity() {
                     ) {
                         text = stringResource(R.string.text_submit)
                         setOnClickListener {
-                            val username = usernameInput.textToString()
-                            val password = passwordInput.textToString()
                             if (username.isNotEmpty() && password.isNotEmpty())
                                 MaterialAlertDialogBuilder(this@MainActivity)
                                     .setTitle(stringResource(R.string.login_info))

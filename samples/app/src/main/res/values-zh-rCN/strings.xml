@@ -9,7 +9,7 @@
     <string name="text_description">如你所见，所有布局都通过代码动态创建，你可以在任何地方对布局进行自定义。</string>
     <string name="text_submit">提交</string>
     <string name="login_info">登录信息</string>
-    <string name="login_info_description">用户名：%1$s\n密码：%1$s</string>
+    <string name="login_info_description">用户名：%1$s\n密码：%2$s</string>
     <string name="login_info_not_fill_tip">请填写所有内容</string>
     <string name="text_welcome">欢迎使用 Hikage！</string>
 </resources>
