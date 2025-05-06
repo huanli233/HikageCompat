@@ -1,3 +1,4 @@
+import com.android.build.gradle.LibraryExtension
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import org.jetbrains.dokka.gradle.DokkaTask
@@ -34,6 +35,16 @@ libraryProjects {
             if (name != Libraries.HIKAGE_COMPILER)
                 configure(AndroidSingleVariantLibrary(publishJavadocJar = false))
         }
+        // Only apply to publishable tasks.
+        if (gradle.startParameter.taskNames.any { it.startsWith("publish") })
+            if (name != Libraries.HIKAGE_COMPILER)
+                configure<LibraryExtension> {
+                    sourceSets.forEach {
+                        // Add KSP generated sources to the source set.
+                        val kspSources = file(layout.buildDirectory.dir("generated/ksp/release").get())
+                        if (kspSources.exists()) it.kotlin.srcDir(kspSources)
+                    }
+                }
     }
     tasks.withType<DokkaTask>().configureEach {
         val configuration = """{ "footerMessage": "Hikage | Apache-2.0 License | Copyright (C) 2019 HighCapable" }"""
