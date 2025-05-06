@@ -444,6 +444,66 @@ val subLayout = Hikageable<LinearLayout.LayoutParams> {
 }
 ```
 
+### State Management
+
+Hikage has a similar state management workaround to Jetpack Compose, which makes it easy to set up state listening for layout components.
+
+Hikage provides two states, `NonNullState` and `NullableState`, which are divided into two states: holding non-null and nullable.
+
+Unlike the recompose of Jetpack Compose, Hikage will not be recomposed, and the states takes effect through listening and callbacks.
+
+You can use both states in the following scenarios.
+
+> The following example
+
+```kotlin
+val myLayout = Hikageable {
+    // Declare a non-null variable state.
+    val mTextState = mutableStateOf("Hello, World!")
+    // Declare a nullable and variable state.
+    val mDrawState = mutableStateOfNull<Drawable>()
+    // You can delegate the state to a variable.
+    var mText by mTextState
+    var mDraw by mDrawState
+    LinearLayout(
+        lparams = LayoutParams(matchParent = true),
+        init = {
+            orientation = LinearLayout.VERTICAL
+        }
+    ) {
+        TextView {
+            textSize = 16f
+            gravity = Gravity.CENTER
+            // Set (binding) state to text.
+            setState(mTextState) {
+                text = it
+            }
+        }
+        ImageView {
+            // Set (binding) state to Drawable.
+            setState(mDrawState) {
+                setImageDrawable(it)
+            }
+        }
+        Button {
+            text = "Click Me!"
+            setOnClickListener {
+                // Modify the value of non-null state.
+                mText = "Hello, Hikage!"
+                // Modify the value of the nullable state.
+                mDraw = drawableResource(R.drawable.ic_my_drawable)
+            }
+        }
+    }
+}
+```
+
+In the example above, we declare a non-null state `mTextState` with `"Hello, World!"` with `mutableStateOf`
+Then continue to declare a nullable state `mDrawState` with `null` using `mutableStateOfNull`.
+
+When clicking the button, we modify the value of `mTextState` to `"Hello, Hikage!"` and the value of `mDrawState` is the property resource `R.drawable.ic_my_drawable`.
+At this time, the text and images of `TextView` and `ImageView` will be automatically updated.
+
 ### Custom Layout Factory
 
 Hikage supports custom layout factories and is compatible with `LayoutInflater.Factory2`.

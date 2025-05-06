@@ -425,6 +425,66 @@ val subLayout = Hikageable<LinearLayout.LayoutParams> {
 }
 ```
 
+### 状态管理
+
+Hikage 拥有与 Jetpack Compose 类似的状态管理解决方法，它可以轻松地设置布局组件的状态监听。
+
+Hikage 提供了两种状态，`NonNullState` 和 `NullableState`，分为持有非空和可空两种状态。
+
+不同于 Jetpack Compose 的重组 (Recompose)，Hikage 不会重组，状态通过监听与回调生效。
+
+你可以在如下场景中使用这两种状态。
+
+> 示例如下
+
+```kotlin
+val myLayout = Hikageable {
+    // 声明一个非空可变状态
+    val mTextState = mutableStateOf("Hello, World!")
+    // 声明一个可空可变状态
+    val mDrawState = mutableStateOfNull<Drawable>()
+    // 你可以将状态委托给一个变量
+    var mText by mTextState
+    var mDraw by mDrawState
+    LinearLayout(
+        lparams = LayoutParams(matchParent = true),
+        init = {
+            orientation = LinearLayout.VERTICAL
+        }
+    ) {
+        TextView {
+            textSize = 16f
+            gravity = Gravity.CENTER
+            // 设置 (绑定) 状态到文本
+            setState(mTextState) {
+                text = it
+            }
+        }
+        ImageView {
+            // 设置 (绑定) 状态到 Drawable
+            setState(mDrawState) {
+                setImageDrawable(it)
+            }
+        }
+        Button {
+            text = "Click Me!"
+            setOnClickListener {
+                // 修改非空状态的值
+                mText = "Hello, Hikage!"
+                // 修改可空状态的值
+                mDraw = drawableResource(R.drawable.ic_my_drawable)
+            }
+        }
+    }
+}
+```
+
+在上面的示例中，我们使用 `mutableStateOf` 声明了一个非空状态 `mTextState`，它的初始值为 `"Hello, World!"`，
+然后继续使用 `mutableStateOfNull` 声明了一个可空状态 `mDrawState`，它的初始值为 `null`。
+
+在点击按钮时，我们修改 `mTextState` 的值为 `"Hello, Hikage!"`，`mDrawState` 的值为属性资源 `R.drawable.ic_my_drawable`，
+这时 `TextView` 和 `ImageView` 的文本和图片将会自动更新。
+
 ### 自定义布局装载器
 
 Hikage 支持自定义布局装载器并同时兼容 `LayoutInflater.Factory2`，你可以通过以下方式自定义在 Hikage 布局装载过程中的事件和监听。
