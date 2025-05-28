@@ -29,18 +29,22 @@ import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Toolbar
+import androidx.activity.viewModels
 import androidx.core.view.setPadding
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.highcapable.betterandroid.system.extension.tool.SystemVersion
 import com.highcapable.betterandroid.ui.extension.view.toast
 import com.highcapable.betterandroid.ui.extension.view.updatePadding
+import com.highcapable.hikage.core.runtime.collectAsHikageState
 import com.highcapable.hikage.core.runtime.mutableStateOfNull
 import com.highcapable.hikage.core.runtime.observe
 import com.highcapable.hikage.demo.R
 import com.highcapable.hikage.demo.ui.base.BaseActivity
+import com.highcapable.hikage.extension.lifecycleOwner
 import com.highcapable.hikage.extension.setContentView
 import com.highcapable.hikage.extension.widget.textRes
 import com.highcapable.hikage.extension.widget.vertical
@@ -57,6 +61,8 @@ import com.highcapable.hikage.widget.com.google.android.material.textfield.TextI
 import com.highcapable.hikage.widget.com.google.android.material.textfield.TextInputLayout
 import com.highcapable.hikage.widget.com.highcapable.hikage.demo.ui.widget.CheckableChip
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 import android.R as Android_R
@@ -64,10 +70,12 @@ import com.google.android.material.R as Material_R
 
 class MainActivity : BaseActivity() {
 
+    val viewModel by viewModels<MainActivityViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView {
-            val userIdState = mutableStateOfNull<String>()
+            val userIdState = viewModel.userIdState.collectAsHikageState(lifecycleOwner)
             var username = ""
             var password = ""
             CoordinatorLayout(lparams = matchParent()) {
@@ -181,7 +189,7 @@ class MainActivity : BaseActivity() {
                                         .setMessage(stringResource(R.string.login_info_description, username, password))
                                         .setPositiveButton(stringResource(Android_R.string.ok), null)
                                         .show()
-                                    userIdState.value = UUID.randomUUID().toString()
+                                    viewModel.generateUserId()
                                 } else toast(stringResource(R.string.login_info_not_fill_tip))
                             }
                         }
@@ -203,5 +211,14 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
+    }
+}
+
+class MainActivityViewModel : ViewModel() {
+    private val _userIdState = MutableStateFlow<String?>(null)
+    val userIdState: StateFlow<String?> = _userIdState
+
+    fun generateUserId() {
+        _userIdState.value = UUID.randomUUID().toString()
     }
 }
