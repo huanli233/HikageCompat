@@ -40,9 +40,9 @@ android {
 dependencies {
     implementation(projects.hikageCore)
     implementation(com.highcapable.yukireflection.api)
-    implementation(com.highcapable.betterandroid.ui.component)
-    implementation(com.highcapable.betterandroid.ui.extension)
-    implementation(com.highcapable.betterandroid.system.extension)
+    implementation(com.huanli233.betterandroid.compat.ui.component)
+    implementation(com.huanli233.betterandroid.compat.ui.extension)
+    implementation(com.huanli233.betterandroid.compat.system.extension)
     implementation(androidx.core.core.ktx)
     implementation(androidx.appcompat.appcompat)
     testImplementation(junit.junit)

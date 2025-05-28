@@ -19,7 +19,7 @@
  *
  * This file is created by fankes on 2025/2/27.
  */
-@file:Suppress("unused", "NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")
+@file:Suppress("unused")
 @file:JvmName("PopupWindowUtils")
 
 package com.highcapable.hikage.extension
@@ -66,6 +66,7 @@ fun PopupWindow.setContentView(
  * Require a context from [PopupWindow].
  * @return [Context]
  */
-private fun PopupWindow.requireContext() =
+@PublishedApi
+internal fun PopupWindow.requireContext() =
     current(ignored = true).field { name = "mContext" }.cast<Context?>()
         ?: error("Hikage need a Context to create PopupWindow content view.")

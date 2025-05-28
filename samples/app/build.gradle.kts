@@ -15,6 +15,8 @@ android {
         versionName = property.project.samples.app.versionName
         versionCode = property.project.samples.app.versionCode
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        multiDexEnabled = true
     }
     buildTypes {
         release {
@@ -48,12 +50,15 @@ dependencies {
     implementation(projects.hikageExtensionBetterandroid)
     implementation(projects.hikageWidgetAndroidx)
     implementation(projects.hikageWidgetMaterial)
-    implementation(com.highcapable.pangutext.pangutext.android)
-    implementation(com.highcapable.betterandroid.ui.component)
-    implementation(com.highcapable.betterandroid.ui.extension)
-    implementation(com.highcapable.betterandroid.system.extension)
+//    implementation(com.highcapable.pangutext.pangutext.android) {
+//        exclude(group = "com.highcapable.betterandroid")
+//    }
+    implementation(com.huanli233.betterandroid.compat.ui.component)
+    implementation(com.huanli233.betterandroid.compat.ui.extension)
+    implementation(com.huanli233.betterandroid.compat.system.extension)
     implementation(androidx.core.core.ktx)
     implementation(androidx.appcompat.appcompat)
+    implementation(androidx.multidex.multidex)
     testImplementation(junit.junit)
     androidTestImplementation(androidx.test.ext.junit)
     androidTestImplementation(androidx.test.espresso.espresso.core)

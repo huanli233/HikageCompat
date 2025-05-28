@@ -24,14 +24,19 @@
 
 package com.highcapable.hikage.core.runtime
 
+import androidx.lifecycle.LifecycleOwner
 import com.highcapable.hikage.core.Hikage
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
  * Definition a [Hikage] runtime state interface.
  */
-interface State<T> : ReadWriteProperty<Any?, T>
+interface State<T> : ReadWriteProperty<Any?, T> {
+    val asStateFlow: StateFlow<T>
+}
 
 /**
  * Definition a [Hikage] runtime state interface for non-nullable type.
@@ -41,11 +46,6 @@ interface NonNullState<T> : State<T> {
     /** The current value of the state. */
     var value: T
 
-    /**
-     * Observe the state changes.
-     * @param observer the observer to be notified when the state changes.
-     */
-    fun observe(observer: (T) -> Unit)
 }
 
 /**
@@ -56,11 +56,6 @@ interface NullableState<T> : State<T?> {
     /** The current value of the state. */
     var value: T?
 
-    /**
-     * Observe the state changes.
-     * @param observer the observer to be notified when the state changes.
-     */
-    fun observe(observer: (T?) -> Unit)
 }
 
 /**
@@ -71,52 +66,41 @@ class MutableState<T> private constructor() {
     /**
      * The non-nullable state of [Hikage].
      */
-    class NonNull<T> internal constructor(private var holder: T) : NonNullState<T> {
+    class NonNull<T> internal constructor(initialValue: T, ) : NonNullState<T> {
 
         private val observers = mutableSetOf<(T) -> Unit>()
+        private val _stateFlow = MutableStateFlow(initialValue)
+        override val asStateFlow: StateFlow<T> = _stateFlow
 
-        override var value get() = holder
+        override var value: T
+            get() = _stateFlow.value
             set(value) {
-                if (holder == value) return
-                holder = value
-                observers.forEach { it(value) }
+                _stateFlow.value = value
             }
 
         override fun getValue(thisRef: Any?, property: KProperty<*>) = value
-
         override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
             this.value = value
-        }
-
-        override fun observe(observer: (T) -> Unit) {
-            observers += observer
-            observer(value)
         }
     }
 
     /**
      * The nullable state of [Hikage].
      */
-    class Nullable<T> internal constructor(private var holder: T?) : NullableState<T?> {
+    class Nullable<T> internal constructor(initialValue: T?) : NullableState<T?> {
 
-        private val observers = mutableSetOf<(T?) -> Unit>()
+        private val _stateFlow = MutableStateFlow(initialValue)
+        override val asStateFlow: StateFlow<T?> = _stateFlow
 
-        override var value get() = holder
+        override var value: T?
+            get() = _stateFlow.value
             set(value) {
-                if (holder == value) return
-                holder = value
-                observers.forEach { it(value) }
+                _stateFlow.value = value
             }
 
         override fun getValue(thisRef: Any?, property: KProperty<*>) = value
-
         override fun setValue(thisRef: Any?, property: KProperty<*>, value: T?) {
             this.value = value
-        }
-
-        override fun observe(observer: (T?) -> Unit) {
-            observers += observer
-            observer(value)
         }
     }
 }
@@ -126,48 +110,16 @@ class MutableState<T> private constructor() {
  * @param value the initial value of the state.
  * @return [MutableState.NonNull]
  */
-fun <T> mutableStateOf(value: T) = MutableState.NonNull(value)
+fun <T> mutableStateOf(
+    value: T
+) = MutableState.NonNull(value)
 
 /**
  * Create a mutable state of [Hikage] with the specified value.
  * @param value the initial value of the state.
  * @return [MutableState.Nullable]
  */
-fun <T> mutableStateOfNull(value: T? = null) = MutableState.Nullable(value)
-
-/**
- * Set the [Hikage] state value.
- *
- * Usage:
- *
- * ```kotlin
- * val textState = mutableStateOf("Hello World!")
- * var text by textState
- * TextView {
- *     setState(textState) {
- *         text = it
- *     }
- * }
- * // Modify the state.
- * text = "Hello Hikage!"
- * ```
- * @param state the state to be set.
- * @param apply the apply body.
- */
-inline fun <T, R> R.setState(state: NonNullState<T>, crossinline apply: R.(T) -> Unit) {
-    state.observe {
-        this.apply(it)
-    }
-}
-
-/**
- * Set the [Hikage] state value.
- * @see setState
- * @param state the state to be set.
- * @param apply the apply body.
- */
-inline fun <T, R> R.setState(state: NullableState<T>, crossinline apply: R.(T?) -> Unit) {
-    state.observe {
-        this.apply(it)
-    }
-}
+fun <T> mutableStateOfNull(
+    value: T? = null,
+    lifecycleOwner: LifecycleOwner? = null
+) = MutableState.Nullable(value)

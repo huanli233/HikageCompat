@@ -25,18 +25,29 @@ package com.highcapable.hikage.demo.ui
 
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
+import android.view.View
 import android.widget.LinearLayout
+import android.widget.Toolbar
 import androidx.core.view.setPadding
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import com.highcapable.betterandroid.system.extension.tool.SystemVersion
 import com.highcapable.betterandroid.ui.extension.view.toast
+import com.highcapable.betterandroid.ui.extension.view.updatePadding
+import com.highcapable.hikage.core.runtime.mutableStateOfNull
+import com.highcapable.hikage.core.runtime.observe
 import com.highcapable.hikage.demo.R
 import com.highcapable.hikage.demo.ui.base.BaseActivity
 import com.highcapable.hikage.extension.setContentView
+import com.highcapable.hikage.extension.widget.textRes
+import com.highcapable.hikage.extension.widget.vertical
 import com.highcapable.hikage.widget.android.widget.LinearLayout
 import com.highcapable.hikage.widget.android.widget.TextView
 import com.highcapable.hikage.widget.androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.highcapable.hikage.widget.androidx.core.widget.NestedScrollView
 import com.highcapable.hikage.widget.com.google.android.material.appbar.MaterialToolbar
 import com.highcapable.hikage.widget.com.google.android.material.button.MaterialButton
 import com.highcapable.hikage.widget.com.google.android.material.card.MaterialCardView
@@ -45,6 +56,9 @@ import com.highcapable.hikage.widget.com.google.android.material.materialswitch.
 import com.highcapable.hikage.widget.com.google.android.material.textfield.TextInputEditText
 import com.highcapable.hikage.widget.com.google.android.material.textfield.TextInputLayout
 import com.highcapable.hikage.widget.com.highcapable.hikage.demo.ui.widget.CheckableChip
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.UUID
 import android.R as Android_R
 import com.google.android.material.R as Material_R
 
@@ -53,124 +67,137 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView {
+            val userIdState = mutableStateOfNull<String>()
             var username = ""
             var password = ""
-            CoordinatorLayout(
-                lparams = LayoutParams(matchParent = true)
-            ) {
-                MaterialToolbar(
-                    lparams = LayoutParams(widthMatchParent = true),
-                    init = {
-                        title = stringResource(R.string.app_name)
-                    }
-                )
-                LinearLayout(
-                    lparams = LayoutParams(matchParent = true) {
-                        topMargin = dimenResource(Material_R.dimen.m3_appbar_size_compact).toInt()
-                    },
-                    init = {
-                        orientation = LinearLayout.VERTICAL
-                        setPadding(16.dp)
-                    }
-                ) {
-                    TextInputLayout(
-                        lparams = LayoutParams(widthMatchParent = true),
+            CoordinatorLayout(lparams = matchParent()) {
+                if (SystemVersion.isHighOrEqualsTo(21)) {
+                    MaterialToolbar(
+                        lparams = widthMatchParent(),
                         init = {
-                            hint = stringResource(R.string.text_username)
-                        }
-                    ) {
-                        TextInputEditText(
-                            lparams = LayoutParams(widthMatchParent = true)
-                        ) {
-                            isSingleLine = true
-                            doOnTextChanged { text, _, _, _ -> 
-                                username = text.toString()
-                            }
-                        }
-                    }
-                    TextInputLayout(
-                        lparams = LayoutParams(widthMatchParent = true) {
-                            topMargin = 12.dp
-                        },
-                        init = {
-                            hint = stringResource(R.string.text_password)
-                            endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
-                        }
-                    ) {
-                        TextInputEditText(
-                            lparams = LayoutParams(widthMatchParent = true)
-                        ) {
-                            isSingleLine = true
-                            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                            doOnTextChanged { text, _, _, _ -> 
-                                password = text.toString()
-                            }
-                        }
-                    }
-                    ChipGroup(
-                        lparams = LayoutParams(widthMatchParent = true) {
-                            topMargin = 16.dp
-                        },
-                        init = {
-                            isSingleSelection = true
-                        }
-                    ) {
-                        repeat(2) { index ->
-                            CheckableChip {
-                                text = when (index) {
-                                    0 -> stringResource(R.string.text_gender_man)
-                                    else -> stringResource(R.string.text_gender_woman)
-                                }
-                            }
-                        }
-                    }
-                    MaterialSwitch(
-                        lparams = LayoutParams(widthMatchParent = true) {
-                            topMargin = 16.dp
-                        },
-                        init = {
-                            text = stringResource(R.string.text_enable_notification)
+                            title = stringResource(R.string.app_name)
                         }
                     )
-                    MaterialCardView(
-                        lparams = LayoutParams(matchParent = true) {
-                            topMargin = 16.dp
-                            weight = 1f
+                }
+                NestedScrollView(lparams = matchParent()) {
+                    LinearLayout(
+                        lparams = widthMatchParent(),
+                        init = {
+                            vertical()
+                            setPadding(16.dp)
+                            updatePadding(vertical = dimenResource(Material_R.dimen.m3_appbar_size_compact).toInt())
                         }
                     ) {
-                        LinearLayout(
-                            lparams = LayoutParams(matchParent = true),
+                        TextInputLayout(
+                            lparams = widthMatchParent(),
                             init = {
-                                orientation = LinearLayout.VERTICAL
-                                setPadding(16.dp)
+                                hint = stringResource(R.string.text_username)
                             }
                         ) {
-                            TextView {
-                                text = stringResource(R.string.text_welcome)
+                            TextInputEditText(
+                                lparams = widthMatchParent()
+                            ) {
+                                isSingleLine = true
+                                doOnTextChanged { text, _, _, _ ->
+                                    username = text.toString()
+                                }
                             }
-                            TextView(
-                                lparams = LayoutParams { 
-                                    topMargin = 8.dp
+                        }
+                        TextInputLayout(
+                            lparams = widthMatchParent() {
+                                topMargin = 12.dp
+                            },
+                            init = {
+                                hint = stringResource(R.string.text_password)
+                                endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+                            }
+                        ) {
+                            TextInputEditText(
+                                lparams = widthMatchParent()
+                            ) {
+                                isSingleLine = true
+                                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+                                doOnTextChanged { text, _, _, _ ->
+                                    password = text.toString()
+                                }
+                            }
+                        }
+                        ChipGroup(
+                            lparams = widthMatchParent() {
+                                topMargin = 16.dp
+                            },
+                            init = {
+                                isSingleSelection = true
+                            }
+                        ) {
+                            repeat(2) { index ->
+                                CheckableChip {
+                                    text = when (index) {
+                                        0 -> stringResource(R.string.text_gender_man)
+                                        else -> stringResource(R.string.text_gender_woman)
+                                    }
+                                }
+                            }
+                        }
+                        MaterialSwitch(
+                            lparams = LayoutParams(widthMatchParent = true) {
+                                topMargin = 16.dp
+                            },
+                            init = {
+                                textRes = R.string.text_enable_notification
+                            }
+                        )
+                        MaterialCardView(
+                            lparams = LayoutParams(matchParent = true) {
+                                topMargin = 16.dp
+                                weight = 1f
+                            }
+                        ) {
+                            LinearLayout(
+                                lparams = LayoutParams(matchParent = true),
+                                init = {
+                                    vertical()
+                                    setPadding(16.dp)
                                 }
                             ) {
-                                text = stringResource(R.string.text_description)
+                                TextView { text = stringResource(R.string.text_welcome) }
+                                TextView(
+                                    lparams = LayoutParams {
+                                        topMargin = 8.dp
+                                    }
+                                ) { text = stringResource(R.string.text_description) }
                             }
                         }
-                    }
-                    MaterialButton(
-                        lparams = LayoutParams(widthMatchParent = true) {
-                            topMargin = 20.dp
+                        MaterialButton(
+                            lparams = widthMatchParent {
+                                topMargin = 20.dp
+                            }
+                        ) {
+                            textRes = R.string.text_submit
+                            setOnClickListener {
+                                if (username.isNotEmpty() && password.isNotEmpty()) {
+                                    MaterialAlertDialogBuilder(this@MainActivity)
+                                        .setTitle(stringResource(R.string.login_info))
+                                        .setMessage(stringResource(R.string.login_info_description, username, password))
+                                        .setPositiveButton(stringResource(Android_R.string.ok), null)
+                                        .show()
+                                    userIdState.value = UUID.randomUUID().toString()
+                                } else toast(stringResource(R.string.login_info_not_fill_tip))
+                            }
                         }
-                    ) {
-                        text = stringResource(R.string.text_submit)
-                        setOnClickListener {
-                            if (username.isNotEmpty() && password.isNotEmpty())
-                                MaterialAlertDialogBuilder(this@MainActivity)
-                                    .setTitle(stringResource(R.string.login_info))
-                                    .setMessage(stringResource(R.string.login_info_description, username, password))
-                                    .setPositiveButton(stringResource(Android_R.string.ok), null)
-                                    .show()
-                            else toast(stringResource(R.string.login_info_not_fill_tip))
+                        TextView(
+                            lparams = widthMatchParent {
+                                topMargin = 12.dp
+                            }
+                        ) {
+                            userIdState.observe {
+                                it?.let {
+                                    visibility = View.VISIBLE
+                                    text = it
+                                } ?: let {
+                                    visibility = View.GONE
+                                }
+                            }
                         }
                     }
                 }

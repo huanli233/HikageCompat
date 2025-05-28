@@ -19,13 +19,14 @@
  *
  * This file is created by fankes on 2025/2/25.
  */
-@file:Suppress("unused", "FunctionName", "NON_PUBLIC_CALL_FROM_PUBLIC_INLINE")
+@file:Suppress("unused", "FunctionName")
 @file:JvmName("HikageableUtils")
 
 package com.highcapable.hikage.core.base
 
 import android.content.Context
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import com.highcapable.hikage.core.Hikage
 
 /**
@@ -53,9 +54,10 @@ inline fun <reified LP : ViewGroup.LayoutParams> Hikageable(
     context: Context,
     parent: ViewGroup? = null,
     attachToParent: Boolean = parent != null,
+    lifecycleOwner: LifecycleOwner? = null,
     factory: HikageFactoryBuilder.() -> Unit = {},
     performer: HikagePerformer<LP>
-) = Hikage.create(context, parent, attachToParent, factory, performer)
+) = Hikage.create(context, parent, attachToParent, lifecycleOwner, factory, performer)
 
 /**
  * Start performing a [Hikage] layout.
@@ -71,9 +73,10 @@ inline fun Hikageable(
     context: Context,
     parent: ViewGroup? = null,
     attachToParent: Boolean = parent != null,
+    lifecycleOwner: LifecycleOwner? = null,
     factory: HikageFactoryBuilder.() -> Unit = {},
     performer: HikagePerformer<ViewGroup.LayoutParams>
-) = Hikage.create(context, parent, attachToParent, factory, performer)
+) = Hikage.create(context, parent, attachToParent, lifecycleOwner, factory, performer)
 
 /**
  * Start performing a [Hikage] layout [LP].

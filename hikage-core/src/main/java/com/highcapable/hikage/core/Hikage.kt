@@ -21,7 +21,7 @@
  */
 @file:Suppress(
     "unused", "FunctionName", "PropertyName", "ConstPropertyName", "UNCHECKED_CAST",
-    "MemberVisibilityCanBePrivate", "TOPLEVEL_TYPEALIASES_ONLY", "NON_PUBLIC_CALL_FROM_PUBLIC_INLINE"
+    "MemberVisibilityCanBePrivate"
 )
 
 package com.highcapable.hikage.core
@@ -38,6 +38,10 @@ import androidx.annotation.FontRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.view.ViewCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import com.highcapable.betterandroid.ui.extension.binding.ViewBinding
 import com.highcapable.betterandroid.ui.extension.component.base.DisplayDensity
@@ -47,13 +51,13 @@ import com.highcapable.betterandroid.ui.extension.component.base.getDrawableComp
 import com.highcapable.betterandroid.ui.extension.component.base.getFontCompat
 import com.highcapable.betterandroid.ui.extension.component.base.toDp
 import com.highcapable.betterandroid.ui.extension.component.base.toPx
+import com.highcapable.betterandroid.ui.extension.component.launch
 import com.highcapable.betterandroid.ui.extension.view.LayoutParamsWrapContent
 import com.highcapable.betterandroid.ui.extension.view.ViewLayoutParams
 import com.highcapable.betterandroid.ui.extension.view.inflate
 import com.highcapable.betterandroid.ui.extension.view.layoutInflater
 import com.highcapable.hikage.annotation.Hikageable
 import com.highcapable.hikage.bypass.XmlBlockBypass
-import com.highcapable.hikage.core.Hikage.LayoutParamsBody
 import com.highcapable.hikage.core.base.HikageFactory
 import com.highcapable.hikage.core.base.HikageFactoryBuilder
 import com.highcapable.hikage.core.base.HikagePerformer
@@ -70,9 +74,15 @@ import com.highcapable.yukireflection.type.android.AttributeSetClass
 import com.highcapable.yukireflection.type.android.ContextClass
 import com.highcapable.yukireflection.type.android.ViewGroup_LayoutParamsClass
 import com.highcapable.yukireflection.type.java.IntType
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.StateFlow
 import java.io.Serializable
+import java.lang.ref.WeakReference
 import java.lang.reflect.Constructor
 import java.util.concurrent.atomic.AtomicInteger
+
+/** The [Hikage] layout params body type. */
+private typealias LayoutParamsBody<LP> = LP.() -> Unit
 
 /**
  * The Hikage core layout builder.
@@ -80,7 +90,10 @@ import java.util.concurrent.atomic.AtomicInteger
  * A [Hikage] can have multiple levels of [Hikage.Performer].
  * @param factories the factories to customize the custom view in the initialization.
  */
-class Hikage private constructor(private val factories: List<HikageFactory>) {
+class Hikage @PublishedApi internal constructor(
+    private val factories: List<HikageFactory>,
+    @PublishedApi internal val lifecycleOwner: LifecycleOwner?
+) {
 
     companion object {
 
@@ -124,9 +137,10 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
             context: Context,
             parent: ViewGroup? = null,
             attachToParent: Boolean = parent != null,
+            lifecycleOwner: LifecycleOwner? = null,
             factory: HikageFactoryBuilder.() -> Unit = {},
             performer: HikagePerformer<LP>
-        ) = create(classOf<LP>(), context, parent, attachToParent, factory, performer)
+        ) = create(classOf<LP>(), context, parent, attachToParent, lifecycleOwner, factory, performer)
 
         /**
          * Create a new [Hikage].
@@ -141,9 +155,10 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
             context: Context,
             parent: ViewGroup? = null,
             attachToParent: Boolean = parent != null,
+            lifecycleOwner: LifecycleOwner? = null,
             factory: HikageFactoryBuilder.() -> Unit = {},
             performer: HikagePerformer<ViewGroup.LayoutParams>
-        ) = create(ViewGroup_LayoutParamsClass, context, parent, attachToParent, factory, performer)
+        ) = create(ViewGroup_LayoutParamsClass, context, parent, attachToParent, lifecycleOwner, factory, performer)
 
         /**
          * Create a new [Hikage].
@@ -160,12 +175,13 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
             context: Context,
             parent: ViewGroup? = null,
             attachToParent: Boolean = parent != null,
+            lifecycleOwner: LifecycleOwner? = null,
             factory: HikageFactoryBuilder.() -> Unit = {},
             performer: HikagePerformer<LP>
         ) = Hikage(HikageFactoryBuilder.create {
             if (isAutoProcessWithFactory2) add(HikageFactory(context.layoutInflater))
             factory()
-        }.build()).apply {
+        }.build(), lifecycleOwner).apply {
             // If the parent view is specified and mark as attach to parent,
             // add it directly to the first position.
             if (parent != null && attachToParent) {
@@ -211,13 +227,12 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
         ) = Delegate(lpClass, factory, performer)
     }
 
-    /** The [Hikage] layout params body type. */
-    private typealias LayoutParamsBody<LP> = LP.() -> Unit
-
     /**
      * The [Hikage.Performer] scope interface.
      */
     private interface PerformerScope : DisplayDensity, ResourcesScope {
+
+        fun <T> com.highcapable.hikage.core.runtime.State<T>.observe(observer: (T) -> Unit): Job
 
         /**
          * Get the actual view id by [id].
@@ -254,10 +269,18 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
     private val performers = linkedSetOf<Performer<*>>()
 
     /** The view map. */
-    private val views = linkedMapOf<String, View>()
+    @PublishedApi
+    internal val views = linkedMapOf<String, View>()
 
     /** The view id map. */
-    private val viewIds = mutableMapOf<String, Int>()
+    @PublishedApi
+    internal val viewIds = mutableMapOf<String, Int>()
+
+    /** A map to hold collection jobs for each StateFlow. Using WeakReference for keys to avoid memory leaks. */
+    private val stateFlowCollectionJobs = mutableMapOf<WeakReference<StateFlow<*>>, Job>()
+
+    /** A map to hold lists of observers for each StateFlow. */
+    private val stateFlowObservers = mutableMapOf<WeakReference<StateFlow<*>>, MutableSet<Any>>()
 
     /**
      * Get the root view.
@@ -319,7 +342,8 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
      * @param context the context.
      * @return [V]
      */
-    private fun <V : View> createView(viewClass: Class<V>, id: String?, context: Context): V {
+    @PublishedApi
+    internal fun <V : View> createView(viewClass: Class<V>, id: String?, context: Context): V {
         val attrs = createAttributeSet(context)
         val view = createViewFromFactory(viewClass, id, context, attrs) ?: getViewConstructor(viewClass)?.build(context, attrs)
         if (view == null) throw PerformerException(
@@ -379,7 +403,8 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
      * @param id the view id.
      * @return [String]
      */
-    private fun provideView(view: View, id: String?): String {
+    @PublishedApi
+    internal fun provideView(view: View, id: String?): String {
         val (requireId, viewId) = generateViewId(id)
         view.id = viewId
         views[requireId] = view
@@ -398,7 +423,7 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
          * @return [Int]
          */
         fun doGenerate(id: String): Int {
-            val generateId = View.generateViewId()
+            val generateId = ViewCompat.generateViewId()
             if (viewIds.contains(id)) throw PerformerException("View with id \"$id\" already exists.")
             viewIds[id] = generateId
             return generateId
@@ -412,14 +437,16 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
      * Generate random view id.
      * @return [String]
      */
-    private fun generateRandomViewId() = "anonymous@${viewAtomicId.getAndIncrement().toHexString()}"
+    @PublishedApi
+    internal fun generateRandomViewId() = "anonymous@${viewAtomicId.getAndIncrement().toHexString()}"
 
     /**
      * We just need a [AttributeSet] instance.
      * @param context the context.
      * @return [AttributeSet]
      */
-    private fun createAttributeSet(context: Context): AttributeSet = XmlBlockBypass.newParser(context)
+    @PublishedApi
+    internal fun createAttributeSet(context: Context): AttributeSet = XmlBlockBypass.newAttrSet(context)
 
     /**
      * Start a new performer [LP].
@@ -428,7 +455,7 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
      * @param context the context, priority is given to [parent]'s context.
      * @return [Performer]
      */
-    private inline fun <reified LP : ViewGroup.LayoutParams> newPerformer(
+    inline fun <reified LP : ViewGroup.LayoutParams> newPerformer(
         parent: ViewGroup? = null,
         attachToParent: Boolean = parent != null,
         context: Context? = null
@@ -442,7 +469,8 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
      * @param context the context, priority is given to [parent]'s context.
      * @return [Performer]
      */
-    private fun <LP : ViewGroup.LayoutParams> newPerformer(
+    @PublishedApi
+    internal fun <LP : ViewGroup.LayoutParams> newPerformer(
         lpClass: Class<LP>,
         parent: ViewGroup? = null,
         attachToParent: Boolean = parent != null,
@@ -458,7 +486,7 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
      * @param name the process name.
      * @param block the block.
      */
-    internal inline fun requireNoPerformers(name: String, block: () -> Unit) {
+    inline fun requireNoPerformers(name: String, block: () -> Unit) {
         val viewCount = views.size
         block()
         if (views.size != viewCount) throw PerformerException(
@@ -495,24 +523,58 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
      * if [parent] is null, it must be set manually.
      */
     inner class Performer<LP : ViewGroup.LayoutParams> internal constructor(
-        private val lpClass: Class<LP>,
-        internal val parent: ViewGroup?,
-        private val attachToParent: Boolean,
-        private val baseContext: Context? = null
+        @PublishedApi internal val lpClass: Class<LP>,
+        @PublishedApi internal val parent: ViewGroup?,
+        @PublishedApi internal val attachToParent: Boolean,
+        @PublishedApi internal val baseContext: Context? = null
     ) : PerformerScope {
 
         /** The current [Hikage]. */
-        private val current get() = this@Hikage
+        @PublishedApi internal val current get() = this@Hikage
 
         /**
          * The context to create the layout.
          * @return [Context]
          */
-        private val context get() = parent?.context
+        @PublishedApi
+        internal val context get() = parent?.context
             ?: baseContext
             ?: throw PerformerException("Parent layout is null or broken, Hikage.Performer need a Context to create the layout.")
 
         override fun actualViewId(id: String) = getActualViewId(id)
+
+        private val stateObservers = mutableMapOf<com.highcapable.hikage.core.runtime.State<Any>, List<(Any) -> Unit>>()
+
+        override fun <T> com.highcapable.hikage.core.runtime.State<T>.observe(observer: (T) -> Unit): Job {
+            val targetStateFlow = this.asStateFlow
+            val owner = lifecycleOwner ?: throw PerformerException(
+                "LifecycleOwner is null, unable to observe state. " +
+                  "Please set the lifecycleOwner when creating Hikage."
+            )
+
+            val stateFlowWeakRef = WeakReference<StateFlow<*>>(targetStateFlow)
+
+            synchronized(stateFlowObservers) {
+                val observersForState = stateFlowObservers.getOrPut(stateFlowWeakRef) { mutableSetOf() }
+                observersForState.add(observer as Any)
+            }
+
+            return synchronized(stateFlowCollectionJobs) {
+                stateFlowCollectionJobs.getOrPut(stateFlowWeakRef) {
+                    owner.launch {
+                        owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            targetStateFlow.collect { value ->
+                                synchronized(stateFlowObservers) {
+                                    stateFlowObservers[stateFlowWeakRef]?.forEach { registeredObserver ->
+                                        (registeredObserver as? (T) -> Unit)?.invoke(value)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         override fun stringResource(@StringRes resId: Int, vararg formatArgs: Any) =
             if (formatArgs.isNotEmpty())
@@ -529,7 +591,8 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
         override fun <N : Number> N.toDp() = toDp(context)
 
         /** The count of providing views. */
-        private var provideCount = 0
+        @PublishedApi
+        internal var provideCount = 0
 
         /**
          * Provide a new [View] instance [V].
@@ -774,8 +837,13 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
             body = body
         )
 
+        fun matchParent(body: LayoutParamsBody<LP> = {}) = LayoutParams(matchParent = true, body = body)
+        fun widthMatchParent(body: LayoutParamsBody<LP> = {}) = LayoutParams(widthMatchParent = true, body = body)
+        fun heightMatchParent(body: LayoutParamsBody<LP> = {}) = LayoutParams(heightMatchParent = true, body = body)
+
         /** If required, add the [view] to the [parent]. */
-        private fun addToParentIfRequired(view: View) {
+        @PublishedApi
+        internal fun addToParentIfRequired(view: View) {
             if (attachToParent) parent?.addView(view)
         }
 
@@ -784,7 +852,7 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
          * @param id the view id.
          * @param view the view instance.
          */
-        private inline fun <reified V : View> startProvide(id: String?, view: V? = null) {
+        inline fun <reified V : View> startProvide(id: String?, view: V? = null) {
             provideCount++
             if (provideCount > 1 && (parent == null || !attachToParent)) throw ProvideException(
                 "Provide view ${view?.javaClass ?: classOf<V>()}(${id?.let { "\"$it\""} ?: "<anonymous>"}) failed. ${
@@ -801,6 +869,7 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
      * @param attrs the attributes set.
      * @param viewClass the view class.
      */
+    @ConsistentCopyVisibility
     data class PerformerParams internal constructor(
         val id: String?,
         val attrs: AttributeSet,
@@ -846,6 +915,7 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
         /** The layout params wrapper. */
         private var wrapperBuilder: WrapperBuilder? = null
 
+        @PublishedApi
         internal companion object {
 
             /**
@@ -947,7 +1017,12 @@ class Hikage private constructor(private val factories: List<HikageFactory>) {
          * @return [Hikage]
          */
 
-        fun create(context: Context, parent: ViewGroup? = null, attachToParent: Boolean = parent != null) =
-            create(lpClass, context, parent, attachToParent, factory, performer)
+        fun create(context: Context, parent: ViewGroup? = null, attachToParent: Boolean = parent != null, lifecycleOwner: LifecycleOwner? = null) =
+            create(lpClass, context, parent, attachToParent, lifecycleOwner, factory, performer)
     }
 }
+
+private data class StateObservers<T>(
+    val state: com.highcapable.hikage.core.runtime.State<T>,
+    val observers: MutableList<(T) -> Unit> = mutableListOf(),
+)

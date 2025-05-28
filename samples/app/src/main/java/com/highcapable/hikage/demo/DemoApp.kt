@@ -22,9 +22,16 @@
 package com.highcapable.hikage.demo
 
 import android.app.Application
+import android.content.Context
+import androidx.multidex.MultiDex
 import com.google.android.material.color.DynamicColors
 
 class DemoApp : Application() {
+
+    override fun attachBaseContext(base: Context?) {
+        super.attachBaseContext(base)
+        MultiDex.install(this)
+    }
 
     override fun onCreate() {
         super.onCreate()

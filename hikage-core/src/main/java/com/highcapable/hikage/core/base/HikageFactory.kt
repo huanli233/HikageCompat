@@ -67,9 +67,9 @@ fun HikageFactory(inflater: LayoutInflater) = HikageFactory { parent, base, cont
 /**
  * The [HikageFactory] builder.
  */
-class HikageFactoryBuilder private constructor() {
+class HikageFactoryBuilder() {
 
-    internal companion object {
+    companion object {
 
         /**
          * Create a [HikageFactoryBuilder].
@@ -102,5 +102,6 @@ class HikageFactoryBuilder private constructor() {
      * Build the factory.
      * @return <[List]>[HikageFactory]
      */
+    @PublishedApi
     internal fun build() = factories.toList()
 }

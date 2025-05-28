@@ -29,11 +29,10 @@ import android.content.res.XmlResourceParser
 import android.content.res.loader.AssetsProvider
 import android.content.res.loader.ResourcesProvider
 import android.util.AttributeSet
+import android.util.Log
+import android.util.Xml
 import androidx.annotation.StyleRes
 import com.highcapable.betterandroid.system.extension.tool.SystemVersion
-import com.highcapable.betterandroid.ui.extension.view.inflateOrNull
-import com.highcapable.betterandroid.ui.extension.view.layoutInflater
-import com.highcapable.hikage.core.R
 import com.highcapable.yukireflection.factory.classOf
 import com.highcapable.yukireflection.factory.lazyClass
 import com.highcapable.yukireflection.type.android.AssetManagerClass
@@ -41,7 +40,9 @@ import com.highcapable.yukireflection.type.java.BooleanType
 import com.highcapable.yukireflection.type.java.IntType
 import com.highcapable.yukireflection.type.java.LongType
 import com.highcapable.yukireflection.type.java.StringClass
+import com.huanli233.hikage.compat.core.R
 import org.lsposed.hiddenapibypass.HiddenApiBypass
+import java.lang.reflect.Constructor
 import android.R as Android_R
 
 /**
@@ -148,25 +149,31 @@ internal object XmlBlockBypass {
                 ).apply { isAccessible = true }.invoke(null, sourceDir, false, false, false)
             else -> error("Unsupported Android version.")
         } as? Long? ?: error("Failed to create ApkAssets.")
-        blockParser = HiddenApiBypass.getDeclaredConstructor(XmlBlockClass, AssetManagerClass, LongType)
-            .apply { isAccessible = true }
-            .newInstance(null, xmlBlock) as? AutoCloseable? ?: error("Failed to create XmlBlock\$Parser.")
+        HiddenApiBypass.getDeclaredMethods(XmlBlockClass).forEach {
+            Log.d("Test", "${it.name} ${it.parameterTypes.contentToString()} ${it is Constructor<*>}")
+        }
+        blockParser = (runCatching {
+            HiddenApiBypass.getDeclaredConstructor(XmlBlockClass, AssetManagerClass, LongType)
+                .apply { isAccessible = true }
+                .newInstance(null, xmlBlock)
+        }.getOrElse {
+            HiddenApiBypass.getDeclaredConstructor(XmlBlockClass, AssetManagerClass, LongType, BooleanType)
+                .apply { isAccessible = true }
+                .newInstance(null, xmlBlock, true)
+        }) as? AutoCloseable? ?: error("Failed to create XmlBlock\$Parser.")
         isInitOnce = true
     }
 
     /**
-     * Create a new parser.
      * @param context the context.
      * @param resId the style resource id, default is [Android_R.style.Widget].
-     * @return [XmlResourceParser]
+     * @return [AttributeSet]
      */
-    fun newParser(context: Context, @StyleRes resId: Int = Android_R.style.Widget): XmlResourceParser {
+    fun newAttrSet(context: Context, @StyleRes resId: Int = Android_R.style.Widget): AttributeSet {
         /**
          * Create a view [AttributeSet].
-         * @return [XmlResourceParser]
          */
-        fun createViewAttrs() = context.layoutInflater.inflateOrNull<HikageAttrsView>(R.layout.layout_hikage_attrs_view)?.attrs
-            as? XmlResourceParser? ?: error("Failed to create AttributeSet.")
+        fun createViewAttrs() = Xml.asAttributeSet(context.resources.getLayout(R.layout.layout_hikage_attrs_view)) ?: error("Failed to create AttributeSet.")
         return if (SystemVersion.isHighOrEqualsTo(SystemVersion.P)) {
             if (!isInitOnce) return createViewAttrs()
             require(blockParser != null) { "Hikage initialization failed." }

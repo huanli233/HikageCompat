@@ -90,7 +90,7 @@ fun AlertDialog.Builder.setView(delegate: Hikage.Delegate<*>): AlertDialog.Build
 inline fun AndroidXAlertDialog.setView(
     factory: HikageFactoryBuilder.() -> Unit = {},
     performer: HikagePerformer<FrameLayout.LayoutParams>
-) = Hikageable(context = context, factory = factory, performer = performer).apply { setView(root) }
+) = Hikageable(context = context, factory = factory, performer = performer, lifecycleOwner = this).apply { setView(root) }
 
 /**
  * @see AndroidXAlertDialog.setView
@@ -104,7 +104,7 @@ fun AndroidXAlertDialog.setView(hikage: Hikage) = setView(hikage.root)
  * @return [Hikage]
  */
 fun AndroidXAlertDialog.setView(delegate: Hikage.Delegate<*>) =
-    delegate.create(context).apply { setView(root) }
+    delegate.create(context, lifecycleOwner = this).apply { setView(root) }
 
 /**
  * @see AndroidXAlertDialog.Builder.setView

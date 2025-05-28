@@ -26,6 +26,8 @@ package com.highcapable.hikage.extension
 
 import android.app.Activity
 import android.widget.FrameLayout
+import androidx.activity.ComponentActivity
+import androidx.lifecycle.LifecycleOwner
 import com.highcapable.hikage.core.Hikage
 import com.highcapable.hikage.core.base.HikageFactoryBuilder
 import com.highcapable.hikage.core.base.HikagePerformer
@@ -39,7 +41,11 @@ import com.highcapable.hikage.core.base.Hikageable
 inline fun Activity.setContentView(
     factory: HikageFactoryBuilder.() -> Unit = {},
     performer: HikagePerformer<FrameLayout.LayoutParams>
-) = Hikageable(context = this, factory = factory, performer = performer).apply { setContentView(root) }
+) = if (this is LifecycleOwner) {
+    Hikageable(context = this, lifecycleOwner = this, factory = factory, performer = performer).apply { setContentView(root) }
+} else {
+    Hikageable(context = this, factory = factory, performer = performer).apply { setContentView(root) }
+}
 
 /**
  * @see Activity.setContentView
@@ -53,4 +59,8 @@ fun Activity.setContentView(hikage: Hikage) = setContentView(hikage.root)
  * @return [Hikage]
  */
 fun Activity.setContentView(delegate: Hikage.Delegate<*>) =
-    delegate.create(context = this).apply { setContentView(root) }
+    if (this is LifecycleOwner) delegate.create(context = this, lifecycleOwner = this).apply { setContentView(root) }
+    else delegate.create(context = this).apply { setContentView(root) }
+
+inline val ComponentActivity.lifecycleOwner
+    get() = this

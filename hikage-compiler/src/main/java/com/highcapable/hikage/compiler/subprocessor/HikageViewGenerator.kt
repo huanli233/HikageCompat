@@ -41,7 +41,7 @@ import com.highcapable.hikage.compiler.extension.getSimpleNameString
 import com.highcapable.hikage.compiler.extension.getTypedSimpleName
 import com.highcapable.hikage.compiler.extension.isSubclassOf
 import com.highcapable.hikage.compiler.subprocessor.base.BaseSymbolProcessor
-import com.highcapable.hikage.generated.HikageCompilerProperties
+import com.huanli233.hikage.compat.generated.HikageCompilerProperties
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec

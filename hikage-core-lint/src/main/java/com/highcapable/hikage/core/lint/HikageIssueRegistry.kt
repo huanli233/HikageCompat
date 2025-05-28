@@ -30,7 +30,7 @@ import com.highcapable.hikage.core.lint.detector.HikageSafeTypeCastDetector
 import com.highcapable.hikage.core.lint.detector.HikageableBeyondScopeDetector
 import com.highcapable.hikage.core.lint.detector.HikageableFunctionsDetector
 import com.highcapable.hikage.core.lint.detector.WidgetsUsageDetector
-import com.highcapable.hikage.generated.HikageCoreLintProperties
+import com.huanli233.hikage.compat.generated.HikageCoreLintProperties
 
 class HikageIssueRegistry : IssueRegistry() {
 

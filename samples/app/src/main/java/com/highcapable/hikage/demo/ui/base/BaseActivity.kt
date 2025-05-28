@@ -23,14 +23,14 @@ package com.highcapable.hikage.demo.ui.base
 
 import android.os.Bundle
 import androidx.annotation.CallSuper
+import androidx.appcompat.app.AppCompatDelegate
 import com.highcapable.betterandroid.ui.component.activity.AppViewsActivity
-import com.highcapable.pangutext.android.factory.PanguTextFactory2
 
 abstract class BaseActivity : AppViewsActivity() {
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        PanguTextFactory2.inject(this)
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
     }
 }
