@@ -10,6 +10,7 @@ plugins {
     autowire(libs.plugins.kotlin.jvm) apply false
     autowire(libs.plugins.kotlin.ksp) apply false
     autowire(libs.plugins.kotlin.dokka) apply false
+    autowire(libs.plugins.compose.compiler) apply false
     autowire(libs.plugins.maven.publish) apply false
 }
 
@@ -69,6 +70,7 @@ fun libraryProjects(action: Action<in Project>) {
         Libraries.HIKAGE_CORE,
         Libraries.HIKAGE_EXTENSION,
         Libraries.HIKAGE_EXTENSION_BETTERANDROID,
+        Libraries.HIKAGE_EXTENSION_COMPOSE,
         Libraries.HIKAGE_COMPILER,
         Libraries.HIKAGE_WIDGET_ANDROIDX,
         Libraries.HIKAGE_WIDGET_MATERIAL
@@ -79,6 +81,7 @@ fun libraryProjects(action: Action<in Project>) {
 object Libraries {
     const val HIKAGE_CORE = "hikage-core"
     const val HIKAGE_EXTENSION = "hikage-extension"
+    const val HIKAGE_EXTENSION_COMPOSE = "hikage-extension-compose"
     const val HIKAGE_EXTENSION_BETTERANDROID = "hikage-extension-betterandroid"
     const val HIKAGE_COMPILER = "hikage-compiler"
     const val HIKAGE_WIDGET_ANDROIDX = "hikage-widget-androidx"

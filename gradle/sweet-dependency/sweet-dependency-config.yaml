@@ -36,6 +36,9 @@ plugins:
   com.vanniktech.maven.publish:
     alias: maven-publish
     version: 0.31.0
+  org.jetbrains.kotlin.plugin.compose:
+    alias: compose-compiler
+    version-ref: kotlin-jvm
 
 libraries:
   androidx.multidex:
@@ -131,3 +134,6 @@ libraries:
       version-ref: <this>::lint
     lint-tests:
       version-ref: <this>::lint
+  androidx.compose.ui:
+    ui:
+      version: 1.7.8

@@ -108,3 +108,4 @@ site
 
 # Mac OS
 .DS_Store
+/.idea/checkstyle-idea.xml

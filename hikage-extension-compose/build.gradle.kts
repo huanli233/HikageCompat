@@ -14,7 +14,7 @@ android {
     compileSdk = property.project.android.compileSdk
 
     defaultConfig {
-        minSdk = property.project.android.minSdk
+        minSdk = property.project.android.compose.minSdk
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -41,8 +41,8 @@ android {
 dependencies {
     implementation(projects.hikageCore)
     implementation(com.highcapable.yukireflection.api)
-    implementation(com.highcapable.betterandroid.ui.extension)
-    implementation(com.highcapable.betterandroid.system.extension)
+    implementation(com.huanli233.betterandroid.compat.ui.extension)
+    implementation(com.huanli233.betterandroid.compat.system.extension)
     implementation(androidx.core.core.ktx)
     implementation(androidx.appcompat.appcompat)
     implementation(androidx.compose.ui.ui)

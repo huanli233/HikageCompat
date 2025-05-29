@@ -17,6 +17,7 @@ sweetProperty {
         ":hikage-core-lint",
         ":hikage-extension",
         ":hikage-extension-betterandroid",
+        ":hikage-extension-compose",
         ":hikage-compiler",
         ":hikage-widget-androidx",
         ":hikage-widget-material"
@@ -33,6 +34,7 @@ include(
     ":hikage-core-lint",
     ":hikage-extension",
     ":hikage-extension-betterandroid",
+    ":hikage-extension-compose",
     ":hikage-compiler",
     ":hikage-widget-androidx",
     ":hikage-widget-material"
