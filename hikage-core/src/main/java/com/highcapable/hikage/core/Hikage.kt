@@ -979,10 +979,11 @@ class Hikage @PublishedApi internal constructor(
          * @return [ViewGroup.LayoutParams]
          */
         private fun createDefaultLayoutParams(lparams: ViewGroup.LayoutParams? = null): ViewGroup.LayoutParams {
+            if (lparams != null && lpClass.isInstance(lparams)) return lparams
             val wrapped = lparams?.let {
                 parent?.current(ignored = true)?.method {
                     name = "generateLayoutParams"
-                    param(ViewGroup_LayoutParamsClass)
+                    param { it.size == 1 && (it[0] == lpClass || it[0] == ViewGroup_LayoutParamsClass) }
                     superClass()
                 }?.invoke<ViewGroup.LayoutParams?>(it)
             } ?: lparams
