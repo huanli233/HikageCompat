@@ -276,6 +276,10 @@ class Hikage @PublishedApi internal constructor(
     @PublishedApi
     internal val viewIds = mutableMapOf<String, Int>()
 
+    /** The view id map. */
+    @PublishedApi
+    internal val usedViewIds = mutableSetOf<String>()
+
     /** A map to hold collection jobs for each StateFlow. Using WeakReference for keys to avoid memory leaks. */
     private val stateFlowCollectionJobs = mutableMapOf<WeakReference<StateFlow<*>>, Job>()
 
@@ -333,7 +337,9 @@ class Hikage @PublishedApi internal constructor(
      * @param id the view id.
      * @return [Int] or -1.
      */
-    fun getActualViewId(id: String) = viewIds[id] ?: -1
+    fun getActualViewId(id: String) = viewIds[id] ?: ViewCompat.generateViewId().also {
+        viewIds[id] = it
+    }
 
     /**
      * Create a new [View] via [V].
@@ -406,7 +412,7 @@ class Hikage @PublishedApi internal constructor(
     @PublishedApi
     internal fun provideView(view: View, id: String?): String {
         val (requireId, viewId) = generateViewId(id)
-        view.id = viewId
+        if (view.id == View.NO_ID) view.id = viewId
         views[requireId] = view
         return requireId
     }
@@ -424,9 +430,11 @@ class Hikage @PublishedApi internal constructor(
          */
         fun doGenerate(id: String): Int {
             val generateId = ViewCompat.generateViewId()
-            if (viewIds.contains(id)) throw PerformerException("View with id \"$id\" already exists.")
-            viewIds[id] = generateId
-            return generateId
+            if (usedViewIds.contains(id)) throw PerformerException("View with id \"$id\" already exists.")
+            usedViewIds.add(id)
+            return viewIds.getOrPut(id) {
+                generateId
+            }
         }
         val requireId = id ?: generateRandomViewId()
         val viewId = doGenerate(requireId)
@@ -542,6 +550,11 @@ class Hikage @PublishedApi internal constructor(
             ?: throw PerformerException("Parent layout is null or broken, Hikage.Performer need a Context to create the layout.")
 
         override fun actualViewId(id: String) = getActualViewId(id)
+
+        /**
+         *  Alias for [actualViewId].
+         */
+        fun viewId(id: String) = actualViewId(id)
 
         private val stateObservers = mutableMapOf<com.highcapable.hikage.core.runtime.State<Any>, List<(Any) -> Unit>>()
 

@@ -27,21 +27,16 @@ import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.Toolbar
 import androidx.activity.viewModels
 import androidx.core.view.setPadding
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.highcapable.betterandroid.system.extension.tool.SystemVersion
 import com.highcapable.betterandroid.ui.extension.view.toast
 import com.highcapable.betterandroid.ui.extension.view.updatePadding
 import com.highcapable.hikage.core.runtime.collectAsHikageState
-import com.highcapable.hikage.core.runtime.mutableStateOfNull
-import com.highcapable.hikage.core.runtime.observe
 import com.highcapable.hikage.demo.R
 import com.highcapable.hikage.demo.ui.base.BaseActivity
 import com.highcapable.hikage.extension.lifecycleOwner
@@ -60,10 +55,8 @@ import com.highcapable.hikage.widget.com.google.android.material.materialswitch.
 import com.highcapable.hikage.widget.com.google.android.material.textfield.TextInputEditText
 import com.highcapable.hikage.widget.com.google.android.material.textfield.TextInputLayout
 import com.highcapable.hikage.widget.com.highcapable.hikage.demo.ui.widget.CheckableChip
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import java.util.UUID
 import android.R as Android_R
 import com.google.android.material.R as Material_R
@@ -91,6 +84,7 @@ class MainActivity : BaseActivity() {
                     LinearLayout(
                         lparams = widthMatchParent(),
                         init = {
+                            Log.d("MainActivity", "The int id of 'submitButton' is ${viewId("submitButton")}")
                             vertical()
                             setPadding(16.dp)
                             updatePadding(vertical = dimenResource(Material_R.dimen.m3_appbar_size_compact).toInt())
@@ -112,7 +106,7 @@ class MainActivity : BaseActivity() {
                             }
                         }
                         TextInputLayout(
-                            lparams = widthMatchParent() {
+                            lparams = widthMatchParent {
                                 topMargin = 12.dp
                             },
                             init = {
@@ -131,7 +125,7 @@ class MainActivity : BaseActivity() {
                             }
                         }
                         ChipGroup(
-                            lparams = widthMatchParent() {
+                            lparams = widthMatchParent {
                                 topMargin = 16.dp
                             },
                             init = {
@@ -177,6 +171,7 @@ class MainActivity : BaseActivity() {
                             }
                         }
                         MaterialButton(
+                            id = "submitButton",
                             lparams = widthMatchParent {
                                 topMargin = 20.dp
                             }
@@ -192,6 +187,8 @@ class MainActivity : BaseActivity() {
                                     viewModel.generateUserId()
                                 } else toast(stringResource(R.string.login_info_not_fill_tip))
                             }
+                        }.also {
+                            Log.d("MainActivity", "The view id is ${it.id}")
                         }
                         TextView(
                             lparams = widthMatchParent {
