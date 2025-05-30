@@ -240,6 +240,14 @@ class Hikage @PublishedApi internal constructor(
          * @return [Int] or -1.
          */
         fun actualViewId(id: String): Int
+
+        /**
+         * Get the actual view id by [id].
+         * Alias of [actualViewId].
+         * @param id the view id.
+         * @return [Int] or -1.
+         */
+        fun viewId(id: String): Int = actualViewId(id)
     }
 
     /**
@@ -551,11 +559,6 @@ class Hikage @PublishedApi internal constructor(
 
         override fun actualViewId(id: String) = getActualViewId(id)
 
-        /**
-         *  Alias for [actualViewId].
-         */
-        fun viewId(id: String) = actualViewId(id)
-
         private val stateObservers = mutableMapOf<com.highcapable.hikage.core.runtime.State<Any>, List<(Any) -> Unit>>()
 
         override fun <T> com.highcapable.hikage.core.runtime.State<T>.observe(observer: (T) -> Unit): Job {
@@ -851,8 +854,14 @@ class Hikage @PublishedApi internal constructor(
         )
 
         fun matchParent(body: LayoutParamsBody<LP> = {}) = LayoutParams(matchParent = true, body = body)
-        fun widthMatchParent(body: LayoutParamsBody<LP> = {}) = LayoutParams(widthMatchParent = true, body = body)
-        fun heightMatchParent(body: LayoutParamsBody<LP> = {}) = LayoutParams(heightMatchParent = true, body = body)
+        fun widthMatchParent(
+            height: Int = LayoutParamsUnspecified,
+            body: LayoutParamsBody<LP> = {}
+        ) = LayoutParams(height = height, widthMatchParent = true, body = body)
+        fun heightMatchParent(
+            width: Int = LayoutParamsUnspecified,
+            body: LayoutParamsBody<LP> = {}
+        ) = LayoutParams(width = width, heightMatchParent = true, body = body)
 
         /** If required, add the [view] to the [parent]. */
         @PublishedApi

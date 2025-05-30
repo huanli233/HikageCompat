@@ -46,11 +46,28 @@ interface ResourcesScope {
     fun stringResource(@StringRes resId: Int, vararg formatArgs: Any): String
 
     /**
+     * Get the string from [resId].
+     * Alias of [stringResource].
+     * @param resId the resource id.
+     * @param formatArgs the format arguments.
+     * @return [String]
+     */
+    fun stringRes(@StringRes resId: Int, vararg formatArgs: Any): String = stringResource(resId)
+
+    /**
      * Get the color from [resId].
      * @param resId the resource id.
      * @return [Int]
      */
     fun colorResource(@ColorRes resId: Int): Int
+
+    /**
+     * Get the color from [resId].
+     * Alias of [colorResource].
+     * @param resId the resource id.
+     * @return [Int]
+     */
+    fun colorRes(@ColorRes resId: Int): Int = colorResource(resId)
 
     /**
      * Get the [ColorStateList] from [resId].
@@ -60,11 +77,27 @@ interface ResourcesScope {
     fun stateColorResource(@ColorRes resId: Int): ColorStateList
 
     /**
+     * Get the [ColorStateList] from [resId].
+     * Alias of [stateColorResource].
+     * @param resId the resource id.
+     * @return [Int]
+     */
+    fun stateColorRes(@ColorRes resId: Int): ColorStateList = stateColorResource(resId)
+
+    /**
      * Get the [Drawable] from [resId].
      * @param resId the resource id.
      * @return [Drawable]
      */
     fun drawableResource(@DrawableRes resId: Int): Drawable
+
+    /**
+     * Get the [Drawable] from [resId].
+     * Alias of [drawableResource].
+     * @param resId the resource id.
+     * @return [Drawable]
+     */
+    fun drawableRes(@DrawableRes resId: Int): Drawable = drawableResource(resId)
 
     /**
      * Get the [Bitmap] from [resId].
@@ -74,6 +107,14 @@ interface ResourcesScope {
     fun bitmapResource(@DrawableRes resId: Int): Bitmap
 
     /**
+     * Get the [Bitmap] from [resId].
+     * Alias of [bitmapResource].
+     * @param resId the resource id.
+     * @return [Bitmap]
+     */
+    fun bitmapRes(@DrawableRes resId: Int): Bitmap = bitmapResource(resId)
+
+    /**
      * Get the dimension from [resId].
      * @param resId the resource id.
      * @return [Float]
@@ -81,9 +122,25 @@ interface ResourcesScope {
     fun dimenResource(@DimenRes resId: Int): Float
 
     /**
+     * Get the dimension from [resId].
+     * Alias of [dimenResource].
+     * @param resId the resource id.
+     * @return [Float]
+     */
+    fun dimenRes(@DimenRes resId: Int): Float = dimenResource(resId)
+
+    /**
      * Get the font from [resId].
      * @param resId the resource id.
      * @return [Typeface] or null.
      */
     fun fontResource(@FontRes resId: Int): Typeface?
+
+    /**
+     * Get the font from [resId].
+     * Alias of [fontResource].
+     * @param resId the resource id.
+     * @return [Typeface] or null.
+     */
+    fun fontRes(@FontRes resId: Int): Typeface? = fontResource(resId)
 }
