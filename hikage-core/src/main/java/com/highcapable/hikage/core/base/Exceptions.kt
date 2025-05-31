@@ -28,7 +28,7 @@ package com.highcapable.hikage.core.base
  * @param message the exception message.
  */
 @PublishedApi
-internal class PerformerException(message: String) : Exception(message)
+internal class PerformerException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 /**
  * The exception of providing view.

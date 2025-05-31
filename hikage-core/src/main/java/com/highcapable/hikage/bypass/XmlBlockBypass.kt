@@ -149,9 +149,6 @@ internal object XmlBlockBypass {
                 ).apply { isAccessible = true }.invoke(null, sourceDir, false, false, false)
             else -> error("Unsupported Android version.")
         } as? Long? ?: error("Failed to create ApkAssets.")
-        HiddenApiBypass.getDeclaredMethods(XmlBlockClass).forEach {
-            Log.d("Test", "${it.name} ${it.parameterTypes.contentToString()} ${it is Constructor<*>}")
-        }
         blockParser = (runCatching {
             HiddenApiBypass.getDeclaredConstructor(XmlBlockClass, AssetManagerClass, LongType)
                 .apply { isAccessible = true }

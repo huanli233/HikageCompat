@@ -23,10 +23,14 @@
 
 package com.highcapable.hikage.demo.ui
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.view.setPadding
 import androidx.core.widget.doOnTextChanged
@@ -41,6 +45,8 @@ import com.highcapable.hikage.demo.R
 import com.highcapable.hikage.demo.ui.base.BaseActivity
 import com.highcapable.hikage.extension.lifecycleOwner
 import com.highcapable.hikage.extension.setContentView
+import com.highcapable.hikage.extension.widget.onClick
+import com.highcapable.hikage.extension.widget.onLongClick
 import com.highcapable.hikage.extension.widget.textRes
 import com.highcapable.hikage.extension.widget.vertical
 import com.highcapable.hikage.widget.android.widget.LinearLayout
@@ -190,7 +196,8 @@ class MainActivity : BaseActivity() {
                         }.also {
                             Log.d("MainActivity", "The view id is ${it.id}")
                         }
-                        TextView(
+                        MaterialButton(
+                            attr = R.layout.style_view_material_textbutton,
                             lparams = widthMatchParent {
                                 topMargin = 12.dp
                             }
@@ -201,6 +208,13 @@ class MainActivity : BaseActivity() {
                                     text = it
                                 } ?: let {
                                     visibility = View.GONE
+                                }
+                            }
+                            onClick {
+                                userIdState.value?.let {
+                                    val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                                    clipboardManager.setPrimaryClip(ClipData.newPlainText("userId", it))
+                                    Toast.makeText(this@MainActivity, "Copied", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }

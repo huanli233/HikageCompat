@@ -29,7 +29,7 @@ import com.google.devtools.ksp.symbol.KSValueArgument
 import com.squareup.kotlinpoet.ClassName
 
 fun KSDeclaration.getClassDeclaration(resolver: Resolver) =
-    if (this is KSClassDeclaration) this else qualifiedName?.let { resolver.getClassDeclarationByName(it) }
+    this as? KSClassDeclaration ?: qualifiedName?.let { resolver.getClassDeclarationByName(it) }
 
 fun KSDeclaration.getSimpleNameString(): String {
     val packageName = packageName.asString()

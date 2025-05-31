@@ -28,6 +28,8 @@ package com.highcapable.hikage.core
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
+import android.util.Xml
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +39,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.FontRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
+import androidx.annotation.XmlRes
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
@@ -76,7 +79,9 @@ import com.highcapable.yukireflection.type.android.ViewGroup_LayoutParamsClass
 import com.highcapable.yukireflection.type.java.IntType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
+import org.xmlpull.v1.XmlPullParser
 import java.io.Serializable
+import java.lang.invoke.MethodHandles
 import java.lang.ref.WeakReference
 import java.lang.reflect.Constructor
 import java.util.concurrent.atomic.AtomicInteger
@@ -266,7 +271,10 @@ class Hikage @PublishedApi internal constructor(
          * @param attrs the attribute set.
          * @return [V] or null.
          */
-        fun <V : View> build(context: Context, attrs: AttributeSet) = when (parameterCount) {
+        fun <V : View> build(
+            context: Context,
+            attrs: AttributeSet
+        ) = when (parameterCount) {
             2 -> instance.newInstance(context, attrs)
             1 -> instance.newInstance(context)
             else -> null
@@ -357,9 +365,9 @@ class Hikage @PublishedApi internal constructor(
      * @return [V]
      */
     @PublishedApi
-    internal fun <V : View> createView(viewClass: Class<V>, id: String?, context: Context): V {
-        val attrs = createAttributeSet(context)
-        val view = createViewFromFactory(viewClass, id, context, attrs) ?: getViewConstructor(viewClass)?.build(context, attrs)
+    internal fun <V : View> createView(viewClass: Class<V>, id: String?, @XmlRes attrXml: Int, context: Context): V {
+        val attrs = createAttributeSet(context, attrXml)
+        val view = createViewFromFactory(viewClass, id, context, attrs) ?: getViewConstructor(viewClass, attrXml != -1)?.build(context, attrs)
         if (view == null) throw PerformerException(
             "Create view of type ${viewClass.name} failed. " +
                 "Please make sure the view class has a constructor with a single parameter of type Context."
@@ -373,8 +381,12 @@ class Hikage @PublishedApi internal constructor(
      * @param viewClass the view class.
      * @return [ViewConstructor] or null.
      */
-    private fun <V : View> getViewConstructor(viewClass: Class<V>) =
-        viewConstructors[viewClass.name] ?: run {
+    private fun <V : View> getViewConstructor(
+        viewClass: Class<V>,
+        hasAttr: Boolean = false
+    ): ViewConstructor? {
+        val cacheKey = "${viewClass.name}-${hasAttr}"
+        return viewConstructors[cacheKey] ?: run {
             var parameterCount = 0
             val twoParams = viewClass.constructor {
                 param(ContextClass, AttributeSetClass)
@@ -382,12 +394,17 @@ class Hikage @PublishedApi internal constructor(
             val onceParam = viewClass.constructor {
                 param(ContextClass)
             }.ignored().give()
-            val constructor = onceParam?.apply { parameterCount = 1 }
-                ?: twoParams?.apply { parameterCount = 2 }
+            val constructor = if (hasAttr) {
+                twoParams?.apply { parameterCount = 2 } ?: throw PerformerException("The view class ${viewClass.name} must have a constructor with two parameters of type Context and AttributeSet to apply attributes.")
+            } else {
+                onceParam?.apply { parameterCount = 1 }
+                    ?: twoParams?.apply { parameterCount = 2 }
+            }
             val viewConstructor = constructor?.let { ViewConstructor(it, parameterCount) }
             if (viewConstructor != null) viewConstructors[viewClass.name] = viewConstructor
             viewConstructor
         }
+    }
 
     /**
      * Create a new [View] from [HikageFactory].
@@ -456,13 +473,32 @@ class Hikage @PublishedApi internal constructor(
     @PublishedApi
     internal fun generateRandomViewId() = "anonymous@${viewAtomicId.getAndIncrement().toHexString()}"
 
+    @PublishedApi internal var attrSets = mutableMapOf<Int, AttributeSet>()
+
     /**
      * We just need a [AttributeSet] instance.
      * @param context the context.
      * @return [AttributeSet]
      */
     @PublishedApi
-    internal fun createAttributeSet(context: Context): AttributeSet = XmlBlockBypass.newAttrSet(context)
+    internal fun createAttributeSet(context: Context, @XmlRes attrXml: Int): AttributeSet =
+        attrSets.getOrPut(attrXml) {
+            if (attrXml == -1) {
+                XmlBlockBypass.newAttrSet(context)
+            } else {
+                runCatching {
+                    val parser = context.resources.getXml(attrXml)
+                    var type = parser.eventType
+                    while (type != XmlPullParser.START_TAG && type != XmlPullParser.END_DOCUMENT) {
+                        type = parser.next()
+                    }
+                    if (type != XmlPullParser.START_TAG) {
+                        throw PerformerException("No start tag found for XML resource $attrXml")
+                    }
+                    Xml.asAttributeSet(parser)
+                }.getOrElse { throw PerformerException("Failed to create attribute set", it) }
+            }
+        }
 
     /**
      * Start a new performer [LP].
@@ -622,10 +658,11 @@ class Hikage @PublishedApi internal constructor(
         inline fun <reified V : View> View(
             lparams: LayoutParams? = null,
             id: String? = null,
+            @XmlRes attrs: Int = -1,
             init: HikageView<V> = {}
         ): V {
             val lpDelegate = LayoutParams.from(current, lpClass, parent, lparams)
-            val view = createView(classOf<V>(), id, context)
+            val view = createView(classOf<V>(), id, attrs, context)
             view.layoutParams = lpDelegate.create()
             requireNoPerformers(classOf<V>().name) { view.init() }
             startProvide<V>(id)
@@ -644,8 +681,9 @@ class Hikage @PublishedApi internal constructor(
         inline fun View(
             lparams: LayoutParams? = null,
             id: String? = null,
+            @XmlRes attrs: Int = -1,
             init: HikageView<View> = {}
-        ) = View<View>(lparams, id, init)
+        ) = View<View>(lparams, id, attrs, init)
 
         /**
          * Provide a new [ViewGroup] instance [VG].
@@ -664,11 +702,12 @@ class Hikage @PublishedApi internal constructor(
         inline fun <reified VG : ViewGroup, reified LP : ViewGroup.LayoutParams> ViewGroup(
             lparams: LayoutParams? = null,
             id: String? = null,
+            @XmlRes attrs: Int = -1,
             init: HikageView<VG> = {},
             performer: HikagePerformer<LP> = {}
         ): VG {
             val lpDelegate = LayoutParams.from(current, lpClass, parent, lparams)
-            val view = createView(classOf<VG>(), id, context)
+            val view = createView(classOf<VG>(), id, attrs, context)
             view.layoutParams = lpDelegate.create()
             requireNoPerformers(classOf<VG>().name) { view.init() }
             startProvide<VG>(id)
@@ -691,9 +730,10 @@ class Hikage @PublishedApi internal constructor(
         inline fun <reified VG : ViewGroup> ViewGroup(
             lparams: LayoutParams? = null,
             id: String? = null,
+            @XmlRes attrs: Int = -1,
             init: HikageView<VG> = {},
             performer: HikagePerformer<ViewGroup.LayoutParams> = {}
-        ) = ViewGroup<VG, ViewGroup.LayoutParams>(lparams, id, init, performer)
+        ) = ViewGroup<VG, ViewGroup.LayoutParams>(lparams, id, attrs, init, performer)
 
         /**
          * Provide layout from [resId].
@@ -992,7 +1032,7 @@ class Hikage @PublishedApi internal constructor(
             val wrapped = lparams?.let {
                 parent?.current(ignored = true)?.method {
                     name = "generateLayoutParams"
-                    param { it.size == 1 && (it[0] == lpClass || it[0] == ViewGroup_LayoutParamsClass) }
+                    param(ViewGroup_LayoutParamsClass)
                     superClass()
                 }?.invoke<ViewGroup.LayoutParams?>(it)
             } ?: lparams

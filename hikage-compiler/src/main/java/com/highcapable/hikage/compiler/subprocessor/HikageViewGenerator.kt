@@ -185,6 +185,14 @@ class HikageViewGenerator(override val environment: SymbolProcessorEnvironment) 
                         .build()
                 )
                 addParameter(
+                    ParameterSpec.builder(name = "attr", Int::class.asTypeName())
+                        .addAnnotation(
+                            AnnotationSpec.builder(ClassName.bestGuess("androidx.annotation.XmlRes")).build()
+                        )
+                        .defaultValue("-1")
+                        .build()
+                )
+                addParameter(
                     ParameterSpec.builder(
                         name = "init",
                         ViewLambdaClass.parameterizedBy(viewClass.second)
@@ -201,8 +209,8 @@ class HikageViewGenerator(override val environment: SymbolProcessorEnvironment) 
                             if (!performer.annotation.requirePerformer) defaultValue("{}")
                         }.build()
                     )
-                    addStatement("return ViewGroup<${performer.declaration.className}, ${it.simpleName}>(lparams, id, init, performer)")
-                } ?: addStatement("return View<${performer.declaration.className}>(lparams, id, init)")
+                    addStatement("return ViewGroup<${performer.declaration.className}, ${it.simpleName}>(lparams, id, attr, init, performer)")
+                } ?: addStatement("return View<${performer.declaration.className}>(lparams, id, attr, init)")
                 returns(viewClass.second)
             }.build())
         }.build()
