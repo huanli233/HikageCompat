@@ -1,13 +1,13 @@
-# Hikage
+# Hikage Compat
 
-[![GitHub license](https://img.shields.io/github/license/BetterAndroid/Hikage?color=blue)](https://github.com/BetterAndroid/Hikage/blob/main/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/BetterAndroid/Hikage?color=blue)](https://github.com/huanli233/HikageCompat/blob/main/LICENSE)
 [![Telegram](https://img.shields.io/badge/discussion-Telegram-blue.svg?logo=telegram)](https://t.me/BetterAndroid)
 [![Telegram](https://img.shields.io/badge/discussion%20dev-Telegram-blue.svg?logo=telegram)](https://t.me/HighCapable_Dev)
 [![QQ](https://img.shields.io/badge/discussion%20dev-QQ-blue.svg?logo=tencent-qq&logoColor=red)](https://qm.qq.com/cgi-bin/qm/qr?k=Pnsc5RY6N2mBKFjOLPiYldbAbprAU3V7&jump_from=webapi&authKey=X5EsOVzLXt1dRunge8ryTxDRrh9/IiW1Pua75eDLh9RE3KXE+bwXIYF5cWri/9lf)
 
 <img src="img-src/icon.svg" width = "100" height = "100" alt="LOGO"/>
 
-An Android responsive UI building tool.
+An Android responsive UI building tool. (forked)
 
 English | [简体中文](README-zh-CN.md)
 
@@ -42,6 +42,18 @@ to use the code layout directly.
 `Hikage` works better with another project [BetterAndroid](https://github.com/BetterAndroid/BetterAndroid) and
 `Hikage` itself will automatically reference the `BetterAndroid` related dependencies as the core content.
 
+## About this fork
+This fork makes non-Compose modules compatible with API 14 and fixes some issues and adds some features.
+
+- Improved State
+- Use view Attributes defined in XML (Just add an attribute to the root View of any layout file and specify it through the attr parameter)
+- Cached AttributeSet, reduce reflections
+- Fix LayoutParams wrapper not working properly for ConstraintLayout or some other layouts
+- Aliases for some functions
+- Improved string id and int id mapping
+
+The document has not been updated yet.
+
 ## Get Started
 
 [Click here](https://betterandroid.github.io/Hikage/en) go to the documentation page for more detailed tutorials and content.
@@ -59,7 +71,7 @@ to use the code layout directly.
 
 ## Star History
 
-![Star History Chart](https://api.star-history.com/svg?repos=BetterAndroid/Hikage&type=Date)
+![Star History Chart](https://api.star-history.com/svg?repos=huanli233/HikageCompat&type=Date)
 
 ## Third-Party Open Source Usage Statement
 
