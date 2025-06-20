@@ -39,3 +39,4 @@ include(
     ":hikage-widget-androidx",
     ":hikage-widget-material"
 )
+include(":hikage-recyclerview")

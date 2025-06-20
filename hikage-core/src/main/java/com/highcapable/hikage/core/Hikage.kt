@@ -1035,7 +1035,7 @@ class Hikage @PublishedApi internal constructor(
                     param(ViewGroup_LayoutParamsClass)
                     superClass()
                 }?.invoke<ViewGroup.LayoutParams?>(it)
-            } ?: lparams
+            }
             return wrapped
                 // Build a default.
                 ?: lpClass.buildOf<ViewGroup.LayoutParams>(LayoutParamsWrapContent, LayoutParamsWrapContent) {
