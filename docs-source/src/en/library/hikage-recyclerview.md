@@ -1,4 +1,4 @@
-# hikage-extension
+# hikage-recyclerview
 
 ![Maven Central](https://img.shields.io/maven-central/v/com.huanli233.hikage.compat/hikage-recyclerview?logo=apachemaven&logoColor=orange)
 <span style="margin-left: 5px"/>
