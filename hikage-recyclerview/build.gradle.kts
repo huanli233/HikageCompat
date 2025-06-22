@@ -6,7 +6,7 @@ plugins {
 }
 
 group = property.project.groupName
-version = property.project.hikage.extension.version
+version = property.project.hikage.recyclerview.version
 
 android {
     namespace = property.project.hikage.recyclerview.namespace
@@ -40,6 +40,9 @@ dependencies {
     implementation(projects.hikageCore)
     implementation(androidx.core.core.ktx)
     implementation(androidx.appcompat.appcompat)
+    api(androidx.recyclerview.recyclerview)
+    api(com.drakeet.multitype.multitype)
+    api(androidx.paging.paging.runtime.ktx)
     testImplementation(junit.junit)
     androidTestImplementation(androidx.test.ext.junit)
     androidTestImplementation(androidx.test.espresso.espresso.core)

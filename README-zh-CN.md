@@ -11,11 +11,6 @@
 
 [English](README.md) | 简体中文
 
-| <img src="https://github.com/BetterAndroid/.github/blob/main/img-src/logo.png?raw=true" width = "30" height = "30" alt="LOGO"/> | [BetterAndroid](https://github.com/BetterAndroid) |
-|---------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
-
-这个项目属于上述组织，**点击上方链接关注这个组织**，发现更多好项目。
-
 ## 这是什么
 
 `Hikage` (发音 /ˈhɪkɑːɡeɪ/)，这是一个 Android 响应式 UI 构建工具，它的设计聚焦于 **实时代码构建 UI**。
@@ -36,7 +31,7 @@
 
 拒绝重复造轮子，我们的方案始终是兼容与高效，现在你可以抛弃 ViewBinding 和 XML 甚至是 `findViewById`，直接来尝试使用代码布局吧。
 
-`Hikage` 配合我们的另一个项目 [BetterAndroid](https://github.com/BetterAndroid/BetterAndroid) 使用效果更佳，同时 `Hikage` 自身将自动引用
+`Hikage` 配合另一个项目 [BetterAndroid](https://github.com/BetterAndroid/BetterAndroid) 使用效果更佳，同时 `Hikage` 自身将自动引用
 `BetterAndroid` 相关依赖作为核心内容。
 
 ## 关于此分支
@@ -50,22 +45,9 @@
 - 添加某些函数的别名
 - 改进了字符串 ID 和 Int ID 映射
 
-文档尚未更新。
-
 ## 开始使用
 
-[点击这里](https://betterandroid.github.io/Hikage/zh-cn) 前往文档页面查看更多详细教程和内容。
-
-## 项目推广
-
-<!--suppress HtmlDeprecatedAttribute -->
-<div align="center">
-    <h2>嘿，还请君留步！👋</h2>
-    <h3>这里有 Android 开发工具、UI 设计、Gradle 插件、Xposed 模块和实用软件等相关项目。</h3>
-    <h3>如果下方的项目能为你提供帮助，不妨为我点个 star 吧！</h3>
-    <h3>所有项目免费、开源，遵循对应开源许可协议。</h3>
-    <h1><a href="https://github.com/fankes/fankes/blob/main/project-promote/README-zh-CN.md">→ 查看更多关于我的项目，请点击这里 ←</a></h1>
-</div>
+[点击这里](https://huanli233.github.io/HikageCompat/zh-cn) 前往文档页面查看更多详细教程和内容。
 
 ## Star History
 

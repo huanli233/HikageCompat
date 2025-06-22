@@ -1,10 +1,8 @@
 # hikage-extension-compose
 
-![Maven Central](https://img.shields.io/maven-central/v/com.highcapable.hikage/hikage-extension-compose?logo=apachemaven&logoColor=orange)
+![Maven Central](https://img.shields.io/maven-central/v/com.huqnli233.hikage.compat/hikage-extension-compose?logo=apachemaven&logoColor=orange)
 <span style="margin-left: 5px"/>
-![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fraw.githubusercontent.com%2FHighCapable%2Fmaven-repository%2Frefs%2Fheads%2Fmain%2Frepository%2Freleases%2Fcom%2Fhighcapable%2Fhikage%2Fhikage-extension-compose%2Fmaven-metadata.xml&logo=apachemaven&logoColor=orange&label=highcapable-maven-releases)
-<span style="margin-left: 5px"/>
-![Android Min SDK](https://img.shields.io/badge/Min%20SDK-21-orange?logo=android)
+![Android Min SDK](https://img.shields.io/badge/Min%20SDK-14-orange?logo=android)
 
 This is a Hikage extension dependency for Jetpack Compose component-related features.
 

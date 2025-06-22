@@ -239,6 +239,10 @@ class Hikage @PublishedApi internal constructor(
 
         fun <T> com.highcapable.hikage.core.runtime.State<T>.observe(observer: (T) -> Unit): Job
 
+        fun <T> com.highcapable.hikage.core.runtime.State<T>.bind() {
+            error("If you want to use State Binding, please apply the hikage-compiler gradle plugin")
+        }
+
         /**
          * Get the actual view id by [id].
          * @param id the view id.

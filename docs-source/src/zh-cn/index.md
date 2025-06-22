@@ -26,9 +26,9 @@ footer: Apache-2.0 License | Copyright (C) 2019 HighCapable
 
 ```kotlin
 LinearLayout(
-    lparams = LayoutParams(matchParent = true),
+    lparams = matchParent(),
     init = {
-        orientation = LinearLayout.VERTICAL
+        vertical()
         gravity = Gravity.CENTER
     }
 ) {

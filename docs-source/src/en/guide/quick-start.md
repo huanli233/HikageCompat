@@ -15,7 +15,7 @@ project and have integrated Kotlin environment dependencies.
 
 ### Configure Repositories
 
-The dependencies of `Hikage` are published in **Maven Central** and our public repository,
+The dependencies of `Hikage` are published in **Maven Central**,
 you can use the following method to configure repositories.
 
 We recommend using Kotlin DSL as the Gradle build script language and [SweetDependency](https://github.com/HighCapable/SweetDependency)
@@ -29,11 +29,6 @@ Configure repositories in your project's `SweetDependency` configuration file.
 repositories:
   google:
   maven-central:
-  # (Optional) You can add this URL to use our public repository
-  # When Sonatype-OSS fails and cannot publish dependencies, this repository is added as a backup
-  # For details, please visit: https://github.com/HighCapable/maven-repository
-  highcapable-maven-releases:
-    url: https://raw.githubusercontent.com/HighCapable/maven-repository/main/repository/releases
 ```
 
 #### Traditional Method
@@ -44,10 +39,6 @@ Configure repositories in your project `build.gradle.kts`.
 repositories {
     google()
     mavenCentral()
-    // (Optional) You can add this URL to use our public repository
-    // When Sonatype-OSS fails and cannot publish dependencies, this repository is added as a backup
-    // For details, please visit: https://github.com/HighCapable/maven-repository
-    maven("https://raw.githubusercontent.com/HighCapable/maven-repository/main/repository/releases")
 }
 ```
 
@@ -77,6 +68,7 @@ Click the corresponding module below to view detailed feature descriptions.
 
 - [hikage-core](../library/hikage-core.md)
 - [hikage-compiler](../library/hikage-compiler.md)
+- [hikage-recyclerview](../library/hikage-recyclerview.md)
 - [hikage-extension](../library/hikage-extension.md)
 - [hikage-extension-betterandroid](../library/hikage-extension-betterandroid.md)
 - [hikage-extension-compose](../library/hikage-extension-compose.md)

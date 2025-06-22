@@ -14,18 +14,18 @@ repositories:
 plugins:
   org.jetbrains.kotlin.jvm:
     alias: kotlin-jvm
-    version: 2.0.10
+    version: 2.0.21
     auto-update: false
   org.jetbrains.kotlin.android:
     alias: kotlin-android
     version-ref: kotlin-jvm
   com.google.devtools.ksp:
     alias: kotlin-ksp
-    version: 2.0.10-1.0.24
+    version: 2.0.21-1.0.28
     auto-update: false
   com.android.application:
     alias: android-application
-    version: 8.10.0
+    version: 8.10.1
   com.android.library:
     alias: android-library
     version-ref: android-application
@@ -47,6 +47,10 @@ libraries:
   org.jetbrains.kotlin:
     kotlin-stdlib:
       version-ref: <plugins>::kotlin-jvm
+    kotlin-gradle-plugin-api:
+      version-ref: <plugins>::kotlin-jvm
+    kotlin-compiler-embeddable:
+      version-ref: <plugins>::kotlin-jvm
   com.google.devtools.ksp:
     symbol-processing-api:
       version-ref: <plugins>::kotlin-ksp
@@ -58,7 +62,7 @@ libraries:
       version: 1.2.0
   com.squareup:
     kotlinpoet:
-      version: 2.1.0
+      version: 2.2.0
     kotlinpoet-ksp:
       version-ref: <this>::kotlinpoet
   com.huanli233.betterandroid.compat:
@@ -137,3 +141,9 @@ libraries:
   androidx.compose.ui:
     ui:
       version: 1.7.8
+  com.drakeet.multitype:
+    multitype:
+      version: 4.3.0
+  androidx.paging:
+    paging-runtime-ktx:
+      version: 3.2.1

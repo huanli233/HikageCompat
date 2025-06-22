@@ -8,11 +8,9 @@
 
 ### Process AttrtibuteSet
 
-`Hikage` will support processing `AttributeSet` in the future to dock with the original XML properties to implement the takeover
-of some third-party components that are not open to customization of layout properties in the code.
+In the future, `Hikage` will try to support processing `AttributeSet` to connect to the original attributes of XML to take over some third-party components that do not open customization of layout attributes in the code.
 
-`Hikage` currently supports automated creation of `XmlBlock`, but does not support the direct processing
-of customized `AttributeSet`. Because of its historical problems and high processing difficulty, it may compromise whether to continue to improve this function in the later stage.
+However, since Android's `attrs` only supports Compiled XML, and resource compilation occurs before code compilation during the build process, it is difficult to implement. We will consider whether to try to write it later.
 
 > The following example
 

@@ -44,6 +44,7 @@ android {
 }
 
 dependencies {
+    kotlinCompilerPluginClasspath(projects.hikageCompiler)
     ksp(projects.hikageCompiler)
     implementation(projects.hikageCore)
     implementation(projects.hikageExtension)

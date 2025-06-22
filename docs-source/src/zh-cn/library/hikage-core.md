@@ -1,10 +1,8 @@
 # hikage-core
 
-![Maven Central](https://img.shields.io/maven-central/v/com.highcapable.hikage/hikage-core?logo=apachemaven&logoColor=orange)
+![Maven Central](https://img.shields.io/maven-central/v/com.huanli233.hikage.compat/hikage-core?logo=apachemaven&logoColor=orange)
 <span style="margin-left: 5px"/>
-![Maven metadata URL](https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fraw.githubusercontent.com%2FHighCapable%2Fmaven-repository%2Frefs%2Fheads%2Fmain%2Frepository%2Freleases%2Fcom%2Fhighcapable%2Fhikage%2Fhikage-core%2Fmaven-metadata.xml&logo=apachemaven&logoColor=orange&label=highcapable-maven-releases)
-<span style="margin-left: 5px"/>
-![Android Min SDK](https://img.shields.io/badge/Min%20SDK-21-orange?logo=android)
+![Android Min SDK](https://img.shields.io/badge/Min%20SDK-14-orange?logo=android)
 
 这是 Hikage 的核心依赖，你需要引入此模块才能使用 Hikage 的基本功能。
 
@@ -447,7 +445,7 @@ val myLayout = Hikageable {
     var mText by mTextState
     var mDraw by mDrawState
     LinearLayout(
-        lparams = LayoutParams(matchParent = true),
+        lparams = matchParent(),
         init = {
             orientation = LinearLayout.VERTICAL
         }
@@ -456,13 +454,13 @@ val myLayout = Hikageable {
             textSize = 16f
             gravity = Gravity.CENTER
             // 设置 (绑定) 状态到文本
-            setState(mTextState) {
+            mTextState.observe {
                 text = it
             }
         }
         ImageView {
             // 设置 (绑定) 状态到 Drawable
-            setState(mDrawState) {
+            mDrawState.observe {
                 setImageDrawable(it)
             }
         }

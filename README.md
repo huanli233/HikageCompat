@@ -11,11 +11,6 @@ An Android responsive UI building tool. (forked)
 
 English | [简体中文](README-zh-CN.md)
 
-| <img src="https://github.com/BetterAndroid/.github/blob/main/img-src/logo.png?raw=true" width = "30" height = "30" alt="LOGO"/> | [BetterAndroid](https://github.com/BetterAndroid) |
-|---------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
-
-This project belongs to the above-mentioned organization, **click the link above to follow this organization** and discover more good projects.
-
 ## What's this
 
 `Hikage` (Pronunciation /ˈhɪkɑːɡeɪ/), this is an Android responsive UI build tool designed to focus on **Real-time code building UI**.
@@ -56,18 +51,7 @@ The document has not been updated yet.
 
 ## Get Started
 
-[Click here](https://betterandroid.github.io/Hikage/en) go to the documentation page for more detailed tutorials and content.
-
-## Promotion
-
-<!--suppress HtmlDeprecatedAttribute -->
-<div align="center">
-     <h2>Hey, please stay! 👋</h2>
-     <h3>Here are related projects such as Android development tools, UI design, Gradle plugins, Xposed Modules and practical software. </h3>
-     <h3>If the project below can help you, please give me a star! </h3>
-     <h3>All projects are free, open source, and follow the corresponding open source license agreement. </h3>
-     <h1><a href="https://github.com/fankes/fankes/blob/main/project-promote/README.md">→ To see more about my projects, please click here ←</a></h1>
-</div>
+[Click here](https://huanli233.github.io/Hikage/en) go to the documentation page for more detailed tutorials and content.
 
 ## Star History
 

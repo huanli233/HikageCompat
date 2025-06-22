@@ -14,7 +14,7 @@
 
 ### 配置存储库
 
-`Hikage` 的依赖发布在 **Maven Central** 和我们的公共存储库中，你可以使用如下方式配置存储库。
+`HikageCompat` 的依赖发布在 **Maven Central** 中，你可以使用如下方式配置存储库。
 
 我们推荐使用 Kotlin DSL 作为 Gradle 构建脚本语言并推荐使用 [SweetDependency](https://github.com/HighCapable/SweetDependency) 来管理依赖。
 
@@ -26,12 +26,6 @@
 repositories:
   google:
   maven-central:
-  # (可选) 你可以添加此 URL 以使用我们的公共存储库
-  # 当 Sonatype-OSS 发生故障无法发布依赖时，此存储库作为备选进行添加
-  # 详情请前往：https://github.com/HighCapable/maven-repository
-  highcapable-maven-releases:
-    # 中国大陆用户请将下方的 "raw.githubusercontent.com" 修改为 "raw.gitmirror.com"
-    url: https://raw.githubusercontent.com/HighCapable/maven-repository/main/repository/releases
 ```
 
 #### 传统方式
@@ -42,11 +36,6 @@ repositories:
 repositories {
     google()
     mavenCentral()
-    // (可选) 你可以添加此 URL 以使用我们的公共存储库
-    // 当 Sonatype-OSS 发生故障无法发布依赖时，此存储库作为备选进行添加
-    // 详情请前往：https://github.com/HighCapable/maven-repository
-    // 中国大陆用户请将下方的 "raw.githubusercontent.com" 修改为 "raw.gitmirror.com"
-    maven("https://raw.githubusercontent.com/HighCapable/maven-repository/main/repository/releases")
 }
 ```
 
@@ -74,6 +63,7 @@ android {
 
 - [hikage-core](../library/hikage-core.md)
 - [hikage-compiler](../library/hikage-compiler.md)
+- [hikage-recyclerview](../library/hikage-widget-material.md)
 - [hikage-extension](../library/hikage-extension.md)
 - [hikage-extension-betterandroid](../library/hikage-extension-betterandroid.md)
 - [hikage-extension-compose](../library/hikage-extension-compose.md)
