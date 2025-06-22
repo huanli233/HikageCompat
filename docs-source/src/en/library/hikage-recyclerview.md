@@ -16,7 +16,7 @@ Add dependency in your project's `SweetDependency` configuration file.
 
 ```yaml
 libraries:
-  com.highcapable.hikage:
+  com.huanli233.hikage.compat:
     hikage-recyclerview:
       version: +
 ````
@@ -24,7 +24,7 @@ libraries:
 Configure dependency in your project `build.gradle.kts`.
 
 ```kotlin
-implementation(com.highcapable.hikage.hikage.recyclerview)
+implementation(com.huanli233.hikage.compat.hikage.recyclerview)
 ```
 
 ### Traditional Method
@@ -32,7 +32,7 @@ implementation(com.highcapable.hikage.hikage.recyclerview)
 Configure dependency in your project `build.gradle.kts`.
 
 ```kotlin
-implementation("com.highcapable.hikage:hikage-recyclerview:<version>")
+implementation("com.huanli233.hikage.compat:hikage-recyclerview:<version>")
 ```
 
 Please change `<version>` to the version displayed at the top of this document.

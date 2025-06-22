@@ -16,7 +16,7 @@
 
 ```yaml
 libraries:
-  com.highcapable.hikage:
+  com.huanli233.hikage.compat:
     hikage-extension:
       version: +
 ```
@@ -24,7 +24,7 @@ libraries:
 在你的项目 `build.gradle.kts` 中配置依赖。
 
 ```kotlin
-implementation(com.highcapable.hikage.hikage.extension)
+implementation(com.huanli233.hikage.compat.hikage.extension)
 ```
 
 ### 传统方式
@@ -32,7 +32,7 @@ implementation(com.highcapable.hikage.hikage.extension)
 在你的项目 `build.gradle.kts` 中配置依赖。
 
 ```kotlin
-implementation("com.highcapable.hikage:hikage-extension:<version>")
+implementation("com.huanli233.hikage.compat:hikage-extension:<version>")
 ```
 
 请将 `<version>` 修改为此文档顶部显示的版本。

@@ -24,7 +24,7 @@ Add dependency in your project's `SweetDependency` configuration file.
 
 ```yaml
 libraries:
-  com.highcapable.hikage:
+  com.huanli233.hikage.compat:
     hikage-extension-compose:
       version: +
 ```
@@ -32,7 +32,7 @@ libraries:
 Configure dependency in your project `build.gradle.kts`.
 
 ```kotlin
-implementation(com.highcapable.hikage.hikage.extension.compose)
+implementation(com.huanli233.hikage.compat.hikage.extension.compose)
 ```
 
 ### Traditional Method
@@ -40,7 +40,7 @@ implementation(com.highcapable.hikage.hikage.extension.compose)
 Configure dependency in your project `build.gradle.kts`.
 
 ```kotlin
-implementation("com.highcapable.hikage:hikage-extension-compose:<version>")
+implementation("com.huanli233.hikage.compat:hikage-extension-compose:<version>")
 ```
 
 Please change `<version>` to the version displayed at the top of this document.

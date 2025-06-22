@@ -7,7 +7,7 @@ Join our developers group.
 - [Click to join Telegram group](https://t.me/BetterAndroid)
 - [Click to join Telegram group (Developer)](https://t.me/HighCapable_Dev)
 
-Find me on **Twitter** [@fankesyooni](https://twitter.com/fankesyooni).
+Find the original developer on **Twitter(X)** [@fankesyooni](https://x.com/fankesyooni). This contribution was created by [@huanli233](https://x.com/huanli233).
 
 ## Help with Maintenance
 

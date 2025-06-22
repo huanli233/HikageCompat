@@ -16,7 +16,7 @@ Add dependency in your project's `SweetDependency` configuration file.
 
 ```yaml
 libraries:
-  com.highcapable.hikage:
+  com.huanli233.hikage.compat:
     hikage-widget-androidx:
       version: +
 ```
@@ -24,7 +24,7 @@ libraries:
 Configure dependency in your project `build.gradle.kts`.
 
 ```kotlin
-implementation(com.highcapable.hikage.hikage.widget.androidx)
+implementation(com.huanli233.hikage.compat.hikage.widget.androidx)
 ```
 
 ### Traditional Method
@@ -32,7 +32,7 @@ implementation(com.highcapable.hikage.hikage.widget.androidx)
 Configure dependency in your project `build.gradle.kts`.
 
 ```kotlin
-implementation("com.highcapable.hikage:hikage-widget-androidx:<version>")
+implementation("com.huanli233.hikage.compat:hikage-widget-androidx:<version>")
 ```
 
 Please change `<version>` to the version displayed at the top of this document.

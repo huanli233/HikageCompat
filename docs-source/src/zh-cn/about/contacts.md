@@ -8,7 +8,7 @@
 - [点击加入 Telegram 群组 (开发者)](https://t.me/HighCapable_Dev)
 - [点击加入 QQ 群 (开发者)](https://qm.qq.com/cgi-bin/qm/qr?k=Pnsc5RY6N2mBKFjOLPiYldbAbprAU3V7&jump_from=webapi&authKey=X5EsOVzLXt1dRunge8ryTxDRrh9/IiW1Pua75eDLh9RE3KXE+bwXIYF5cWri/9lf)
 
-在 **酷安** 找到我 [@星夜不荟](http://www.coolapk.com/u/876977)。
+在 **酷安** 找到原开发者 [@星夜不荟](https://www.coolapk.com/u/876977)。此分支由 [@huanli233](https://www.coolapk.com/u/23823844) 创建。
 
 ## 助力维护
 

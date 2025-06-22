@@ -26,7 +26,7 @@ plugins:
     version: +
 
 libraries:
-  com.highcapable.hikage:
+  com.huanli233.hikage.compat:
     hikage-compiler:
       version: +
 ```
@@ -50,7 +50,7 @@ plugins {
 
 dependencies {
     // ...
-    ksp(com.highcapable.hikage.hikage.compiler)
+    ksp(com.huanli233.hikage.compat.hikage.compiler)
 }
 ```
 
@@ -75,7 +75,7 @@ plugins {
 
 dependencies {
     // ...
-    ksp("com.highcapable.hikage:hikage-compiler:<version>")
+    ksp("com.huanli233.hikage.compat:hikage-compiler:<version>")
 }
 ```
 
