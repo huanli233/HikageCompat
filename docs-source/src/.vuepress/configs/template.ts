@@ -13,7 +13,7 @@ const navigationLinks = {
     library: [
         '/library/hikage-core',
         '/library/hikage-compiler',
-        '/library/hikage-recyclerview'
+        '/library/hikage-recyclerview',
         '/library/hikage-extension',
         '/library/hikage-extension-betterandroid',
         '/library/hikage-extension-compose',
