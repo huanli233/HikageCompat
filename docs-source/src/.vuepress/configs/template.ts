@@ -37,10 +37,10 @@ export const configs = {
         port: 9000
     },
     website: {
-        base: '/Hikage/',
-        icon: '/Hikage/images/logo.svg',
+        base: '/HikageCompat/',
+        icon: '/HikageCompat/images/logo.svg',
         logo: '/images/logo.svg',
-        title: 'Hikage',
+        title: 'HikageCompat',
         locales: {
             '/en/': {
                 lang: 'en-US',
