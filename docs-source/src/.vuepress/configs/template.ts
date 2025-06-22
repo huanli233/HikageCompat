@@ -13,6 +13,7 @@ const navigationLinks = {
     library: [
         '/library/hikage-core',
         '/library/hikage-compiler',
+        '/library/hikage-recyclerview'
         '/library/hikage-extension',
         '/library/hikage-extension-betterandroid',
         '/library/hikage-extension-compose',
@@ -52,8 +53,8 @@ export const configs = {
         }
     },
     github: {
-        repo: 'https://github.com/BetterAndroid/Hikage',
-        page: 'https://betterandroid.github.io/Hikage',
+        repo: 'https://github.com/huanli233/HikageCompat',
+        page: 'https://huanli233.github.io/HikageCompat',
         branch: 'main',
         dir: 'docs-source/src'
     }
