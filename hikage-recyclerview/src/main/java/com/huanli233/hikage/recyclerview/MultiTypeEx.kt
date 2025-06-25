@@ -77,6 +77,8 @@ inline fun RecyclerView.initMultiType(
     this@initMultiType.adapter = this
 }
 
+inline val RecyclerView.multiTypeAdapter: MultiTypeAdapter get() = adapter as MultiTypeAdapter
+
 inline fun MultiTypeAdapter.register(
     builder: MultiTypeRegister.() -> Unit
 ): MultiTypeAdapter = apply {

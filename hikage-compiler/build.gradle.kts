@@ -2,7 +2,7 @@ plugins {
     autowire(libs.plugins.kotlin.jvm)
     autowire(libs.plugins.kotlin.ksp)
     autowire(libs.plugins.maven.publish)
-    `kotlin-dsl`
+    id("java-gradle-plugin")
 //    id("com.github.gmazzo.buildconfig") version "5.6.6"
 }
 
@@ -38,7 +38,6 @@ dependencies {
     implementation(gradleApi())
     compileOnly(com.google.devtools.ksp.symbol.processing.api)
     ksp(dev.zacsweers.autoservice.auto.service.ksp)
-    ksp(com.squareup.kotlinpoet)
     implementation(com.google.auto.service.auto.service.annotations)
     implementation(com.squareup.kotlinpoet)
     implementation(com.squareup.kotlinpoet.ksp)

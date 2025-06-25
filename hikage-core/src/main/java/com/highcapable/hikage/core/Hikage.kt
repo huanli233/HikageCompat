@@ -28,7 +28,6 @@ package com.highcapable.hikage.core
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.util.Xml
 import android.view.LayoutInflater
 import android.view.View
@@ -68,6 +67,7 @@ import com.highcapable.hikage.core.base.HikageView
 import com.highcapable.hikage.core.base.PerformerException
 import com.highcapable.hikage.core.base.ProvideException
 import com.highcapable.hikage.core.extension.ResourcesScope
+import com.highcapable.hikage.core.runtime.State
 import com.highcapable.yukireflection.factory.buildOf
 import com.highcapable.yukireflection.factory.classOf
 import com.highcapable.yukireflection.factory.constructor
@@ -81,9 +81,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
 import org.xmlpull.v1.XmlPullParser
 import java.io.Serializable
-import java.lang.invoke.MethodHandles
 import java.lang.ref.WeakReference
 import java.lang.reflect.Constructor
+import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 /** The [Hikage] layout params body type. */
@@ -237,11 +237,33 @@ class Hikage @PublishedApi internal constructor(
      */
     private interface PerformerScope : DisplayDensity, ResourcesScope {
 
-        fun <T> com.highcapable.hikage.core.runtime.State<T>.observe(observer: (T) -> Unit): Job
+        /**
+         * Observe the [State] value changes.
+         * @param observer the observer body.
+         * @return [Job]
+         */
+        fun <T> State<T>.observe(observer: (T) -> Unit): Job
 
-        fun <T> com.highcapable.hikage.core.runtime.State<T>.bind() {
-            error("If you want to use State Binding, please apply the hikage-compiler gradle plugin")
+        /**
+         * Incomplete StateBinding
+         */
+        fun <T> State<T>.bind(): T {
+            compilerStub()
         }
+
+        /**
+         * do when a view with [id] is available.
+         * @param id the view id.
+         * @param action the action body.
+         */
+        fun <T> whenAvailableTyped(id: String, action: (T) -> Unit)
+
+        /**
+         * do when a view with [id] is available.
+         * @param id the view id.
+         * @param action the action body.
+         */
+        fun whenAvailable(id: String, action: (View) -> Unit)
 
         /**
          * Get the actual view id by [id].
@@ -305,6 +327,9 @@ class Hikage @PublishedApi internal constructor(
 
     /** A map to hold lists of observers for each StateFlow. */
     private val stateFlowObservers = mutableMapOf<WeakReference<StateFlow<*>>, MutableSet<Any>>()
+
+    @PublishedApi
+    internal val viewAvailableListeners = mutableMapOf<String, MutableList<(View) -> Unit>>()
 
     /**
      * Get the root view.
@@ -381,6 +406,20 @@ class Hikage @PublishedApi internal constructor(
     }
 
     /**
+     * Provide an exists [View].
+     * @param view the view instance.
+     * @param id the view id.
+     * @return [String]
+     */
+    @PublishedApi
+    internal fun provideView(view: View, id: String?): String {
+        val (requireId, viewId) = generateViewId(id)
+        if (view.id == View.NO_ID) view.id = viewId
+        views[requireId] = view
+        return requireId
+    }
+
+    /**
      * Get the view constructor.
      * @param viewClass the view class.
      * @return [ViewConstructor] or null.
@@ -430,20 +469,6 @@ class Hikage @PublishedApi internal constructor(
             )
             if (view != null) processed = view as? V?
         }; return processed
-    }
-
-    /**
-     * Provide an exists [View].
-     * @param view the view instance.
-     * @param id the view id.
-     * @return [String]
-     */
-    @PublishedApi
-    internal fun provideView(view: View, id: String?): String {
-        val (requireId, viewId) = generateViewId(id)
-        if (view.id == View.NO_ID) view.id = viewId
-        views[requireId] = view
-        return requireId
     }
 
     /**
@@ -578,7 +603,7 @@ class Hikage @PublishedApi internal constructor(
      * @param baseContext the context to create the layout, priority is given to [parent]'s context.
      * if [parent] is null, it must be set manually.
      */
-    inner class Performer<LP : ViewGroup.LayoutParams> internal constructor(
+    open inner class Performer<LP : ViewGroup.LayoutParams> internal constructor(
         @PublishedApi internal val lpClass: Class<LP>,
         @PublishedApi internal val parent: ViewGroup?,
         @PublishedApi internal val attachToParent: Boolean,
@@ -599,9 +624,21 @@ class Hikage @PublishedApi internal constructor(
 
         override fun actualViewId(id: String) = getActualViewId(id)
 
-        private val stateObservers = mutableMapOf<com.highcapable.hikage.core.runtime.State<Any>, List<(Any) -> Unit>>()
+        override fun <T> whenAvailableTyped(id: String, action: (T) -> Unit) {
+            getOrNull(id)?.let { action(it as T) } ?: let {
+                viewAvailableListeners.getOrPut(id) { mutableListOf() }.add(action as (View) -> Unit)
+            }
+        }
 
-        override fun <T> com.highcapable.hikage.core.runtime.State<T>.observe(observer: (T) -> Unit): Job {
+        override fun whenAvailable(id: String, action: (View) -> Unit) {
+            getOrNull(id)?.let { action(it) } ?: let {
+                viewAvailableListeners.getOrPut(id) { mutableListOf() }.add(action)
+            }
+        }
+
+        private val stateObservers = mutableMapOf<State<Any>, List<(Any) -> Unit>>()
+
+        override fun <T> State<T>.observe(observer: (T) -> Unit): Job {
             val targetStateFlow = this.asStateFlow
             val owner = lifecycleOwner ?: throw PerformerException(
                 "LifecycleOwner is null, unable to observe state. " +
@@ -650,6 +687,9 @@ class Hikage @PublishedApi internal constructor(
         @PublishedApi
         internal var provideCount = 0
 
+        @PublishedApi
+        internal val providedViews = mutableListOf<Pair<String, View>>()
+
         /**
          * Provide a new [View] instance [V].
          * @param lparams the view layout params.
@@ -669,7 +709,7 @@ class Hikage @PublishedApi internal constructor(
             val view = createView(classOf<V>(), id, attrs, context)
             view.layoutParams = lpDelegate.create()
             requireNoPerformers(classOf<V>().name) { view.init() }
-            startProvide<V>(id)
+            startProvide<V>(id, view)
             addToParentIfRequired(view)
             return view
         }
@@ -714,7 +754,7 @@ class Hikage @PublishedApi internal constructor(
             val view = createView(classOf<VG>(), id, attrs, context)
             view.layoutParams = lpDelegate.create()
             requireNoPerformers(classOf<VG>().name) { view.init() }
-            startProvide<VG>(id)
+            startProvide<VG>(id, view)
             addToParentIfRequired(view)
             newPerformer<LP>(view).apply(performer)
             return view
@@ -738,6 +778,86 @@ class Hikage @PublishedApi internal constructor(
             init: HikageView<VG> = {},
             performer: HikagePerformer<ViewGroup.LayoutParams> = {}
         ) = ViewGroup<VG, ViewGroup.LayoutParams>(lparams, id, attrs, init, performer)
+
+        private val updateScopeViews = WeakHashMap<UpdateScopeInstanceContext, MutableList<Pair<String, View>>>()
+        private val updateScopeObservers = WeakHashMap<UpdateScopeInstanceContext, MutableSet<Any>>()
+        private val updateScopeJobs = WeakHashMap<UpdateScopeInstanceContext, Job>()
+        private val updateScopePreviousValues = WeakHashMap<UpdateScopeInstanceContext, Any?>()
+
+        /**
+         * Observes the given [state] and re-runs the [performer] block whenever the state updates,
+         * conditioned by the [diff] block.
+         * Each time the state updates, if the [diff] block returns `true` (meaning no update needed),
+         * the previously added views generated by this scope will be retained.
+         * If [diff] returns `false`, previous views are removed, and new views are added based on the updated state.
+         *
+         * @param state The [State] to observe.
+         * @param diff A block that provides the previous and current state values. Returns `true` if no update is needed, `false` otherwise.
+         * @param performer The block to execute, receiving an [UpdateScopePerformer] with the current state value.
+         */
+        @Hikageable
+        fun <T> UpdateScope(
+            state: State<T>,
+            diff: UpdateScopeDiffContext<T>.() -> Boolean,
+            performer: UpdateScopePerformer<T, LP>.() -> Unit
+        ) {
+            val owner = lifecycleOwner ?: throw PerformerException(
+                "LifecycleOwner is null, unable to observe state for UpdateScope. " +
+                  "Please set the lifecycleOwner when creating Hikage."
+            )
+
+            val scopeInstanceContext = UpdateScopeInstanceContext()
+
+            updateScopeJobs[scopeInstanceContext]?.cancel()
+            updateScopeJobs.remove(scopeInstanceContext)
+
+            val job = owner.launch {
+                var previousValue: T? = updateScopePreviousValues[scopeInstanceContext] as T?
+
+                state.asStateFlow.collect { currentValue ->
+
+                    previousValue?.let {
+                        if (UpdateScopeDiffContext(it, currentValue).diff()) {
+                            previousValue = currentValue
+                            updateScopePreviousValues[scopeInstanceContext] = currentValue
+                            return@collect
+                        }
+                    }
+
+                    synchronized(stateFlowObservers) {
+                        stateFlowObservers.forEach { (_, observers) ->
+                            updateScopeObservers[scopeInstanceContext]?.let { observers.removeAll(it) }
+                        }
+                        updateScopeObservers.clear()
+                    }
+                    updateScopeViews[scopeInstanceContext]?.let { viewsToRemove ->
+                        viewsToRemove.forEach { (id, view) ->
+                            usedViewIds.remove(id)
+                            if (view.parent is ViewGroup) {
+                                (view.parent as ViewGroup).removeView(view)
+                            }
+                        }
+                        viewsToRemove.clear()
+                    }
+
+                    val updatePerformer = UpdateScopePerformer(this@Performer, currentValue)
+                    updatePerformer.apply(performer)
+                    updateScopeViews.getOrPut(scopeInstanceContext) { mutableListOf() }.addAll(updatePerformer.providedViews)
+                    updateScopeObservers.getOrPut(scopeInstanceContext) { mutableSetOf() }.addAll(updatePerformer.observers)
+
+                    previousValue = currentValue
+                    updateScopePreviousValues[scopeInstanceContext] = currentValue
+                }
+            }
+            updateScopeJobs[scopeInstanceContext] = job
+        }
+
+        fun <T> UpdateScope(
+            state: State<T>,
+            performer: UpdateScopePerformer<T, LP>.() -> Unit
+        ) {
+            UpdateScope(state, { previousValue == currentValue }, performer)
+        }
 
         /**
          * Provide layout from [resId].
@@ -926,6 +1046,64 @@ class Hikage @PublishedApi internal constructor(
                     else "Parent view group declares attachToParent = false"
                 }, you can only provide one view for the root view."
             )
+            id?.let { viewAvailableListeners[it] }?.forEach { listener ->
+                view?.let { listener(it) }
+            }
+            view?.let {
+                providedViews += id.orEmpty() to view
+            }
+        }
+    }
+
+    inner class UpdateScopePerformer<T, LP : ViewGroup.LayoutParams> internal constructor(
+        receiverPerformer: Performer<LP>,
+        val value: T
+    ): Performer<LP>(receiverPerformer.lpClass, receiverPerformer.parent, receiverPerformer.attachToParent, receiverPerformer.context) {
+        internal val observers: MutableSet<Any> = mutableSetOf()
+        override fun <T> State<T>.observe(observer: (T) -> Unit): Job {
+            val targetStateFlow = this.asStateFlow
+            val owner = lifecycleOwner ?: throw PerformerException(
+                "LifecycleOwner is null, unable to observe state. " +
+                  "Please set the lifecycleOwner when creating Hikage."
+            )
+
+            val stateFlowWeakRef = WeakReference<StateFlow<*>>(targetStateFlow)
+
+            synchronized(stateFlowObservers) {
+                val observersForState = stateFlowObservers.getOrPut(stateFlowWeakRef) { mutableSetOf() }
+                observersForState.add(observer as Any)
+                observers.add(observer as Any)
+            }
+
+            return synchronized(stateFlowCollectionJobs) {
+                stateFlowCollectionJobs.getOrPut(stateFlowWeakRef) {
+                    owner.launch {
+                        owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                            targetStateFlow.collect { value ->
+                                synchronized(stateFlowObservers) {
+                                    stateFlowObservers[stateFlowWeakRef]?.forEach { registeredObserver ->
+                                        (registeredObserver as? (T) -> Unit)?.invoke(value)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private class UpdateScopeInstanceContext
+
+    class UpdateScopeDiffContext<T> internal constructor(
+        val previousValue: T,
+        val currentValue: T
+    ) {
+        /**
+         * Helper function to easily check if the values are different.
+         */
+        fun areValuesDifferent(): Boolean {
+            return previousValue != currentValue
         }
     }
 
@@ -1089,7 +1267,17 @@ class Hikage @PublishedApi internal constructor(
     }
 }
 
+fun <T> T.cached(): T {
+    compilerStub()
+}
+
+fun <T> T.oneTime(): T {
+    compilerStub()
+}
+
 private data class StateObservers<T>(
-    val state: com.highcapable.hikage.core.runtime.State<T>,
+    val state: State<T>,
     val observers: MutableList<(T) -> Unit> = mutableListOf(),
 )
+
+internal fun compilerStub(): Nothing = error("If you want to use State Binding, please apply the hikage-compiler gradle plugin")

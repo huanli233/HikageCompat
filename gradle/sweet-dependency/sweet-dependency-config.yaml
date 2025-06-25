@@ -14,14 +14,14 @@ repositories:
 plugins:
   org.jetbrains.kotlin.jvm:
     alias: kotlin-jvm
-    version: 2.0.21
+    version: 2.1.21
     auto-update: false
   org.jetbrains.kotlin.android:
     alias: kotlin-android
     version-ref: kotlin-jvm
   com.google.devtools.ksp:
     alias: kotlin-ksp
-    version: 2.0.21-1.0.28
+    version: 2.1.21-2.0.2
     auto-update: false
   com.android.application:
     alias: android-application

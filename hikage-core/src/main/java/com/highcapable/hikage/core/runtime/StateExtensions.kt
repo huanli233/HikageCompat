@@ -56,10 +56,8 @@ inline fun <T> NullableState<T>.observe(
 fun <T> StateFlow<T>.collectAsHikageState(lifecycleOwner: LifecycleOwner): NonNullState<T> {
     val hikageState = mutableStateOf(this.value)
     lifecycleOwner.lifecycleScope.launch {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            this@collectAsHikageState.collect {
-                hikageState.value = it
-            }
+        this@collectAsHikageState.collect {
+            hikageState.value = it
         }
     }
     return hikageState

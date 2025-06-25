@@ -30,17 +30,26 @@ import android.os.Bundle
 import android.text.InputType
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.drakeet.multitype.MultiTypeAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.highcapable.betterandroid.system.extension.tool.SystemVersion
 import com.highcapable.betterandroid.ui.extension.view.toast
 import com.highcapable.betterandroid.ui.extension.view.updatePadding
+import com.highcapable.hikage.core.Hikage
+import com.highcapable.hikage.core.base.Hikageable
+import com.highcapable.hikage.core.builder.HikageBuilder
+import com.highcapable.hikage.core.oneTime
 import com.highcapable.hikage.core.runtime.collectAsHikageState
+import com.highcapable.hikage.core.runtime.mutableStateOf
 import com.highcapable.hikage.demo.R
 import com.highcapable.hikage.demo.ui.base.BaseActivity
 import com.highcapable.hikage.extension.lifecycleOwner
@@ -53,6 +62,7 @@ import com.highcapable.hikage.widget.android.widget.LinearLayout
 import com.highcapable.hikage.widget.android.widget.TextView
 import com.highcapable.hikage.widget.androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.highcapable.hikage.widget.androidx.core.widget.NestedScrollView
+import com.highcapable.hikage.widget.androidx.recyclerview.widget.RecyclerView
 import com.highcapable.hikage.widget.com.google.android.material.appbar.MaterialToolbar
 import com.highcapable.hikage.widget.com.google.android.material.button.MaterialButton
 import com.highcapable.hikage.widget.com.google.android.material.card.MaterialCardView
@@ -61,8 +71,12 @@ import com.highcapable.hikage.widget.com.google.android.material.materialswitch.
 import com.highcapable.hikage.widget.com.google.android.material.textfield.TextInputEditText
 import com.highcapable.hikage.widget.com.google.android.material.textfield.TextInputLayout
 import com.highcapable.hikage.widget.com.highcapable.hikage.demo.ui.widget.CheckableChip
+import com.huanli233.hikage.recyclerview.hikageItem
+import com.huanli233.hikage.recyclerview.register
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import java.util.UUID
 import android.R as Android_R
 import com.google.android.material.R as Material_R
@@ -74,7 +88,7 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView {
-            val userIdState = viewModel.userIdState.collectAsHikageState(lifecycleOwner)
+            val userId = viewModel.userIdState.collectAsHikageState(lifecycleOwner)
             var username = ""
             var password = ""
             CoordinatorLayout(lparams = matchParent()) {
@@ -183,7 +197,7 @@ class MainActivity : BaseActivity() {
                             }
                         ) {
                             textRes = R.string.text_submit
-                            setOnClickListener {
+                            onClick {
                                 if (username.isNotEmpty() && password.isNotEmpty()) {
                                     MaterialAlertDialogBuilder(this@MainActivity)
                                         .setTitle(stringResource(R.string.login_info))
@@ -193,28 +207,31 @@ class MainActivity : BaseActivity() {
                                     viewModel.generateUserId()
                                 } else toast(stringResource(R.string.login_info_not_fill_tip))
                             }
+                            whenAvailable("copyBtn") {
+                                Log.d("MainActivity", "I got view ${it}!")
+                            }
                         }.also {
                             Log.d("MainActivity", "The view id is ${it.id}")
                         }
-                        MaterialButton(
-                            attr = R.layout.style_view_material_textbutton,
-                            lparams = widthMatchParent {
-                                topMargin = 12.dp
-                            }
-                        ) {
-                            userIdState.observe {
-                                it?.let {
-                                    visibility = View.VISIBLE
-                                    text = it
-                                } ?: let {
-                                    visibility = View.GONE
-                                }
-                            }
-                            onClick {
-                                userIdState.value?.let {
-                                    val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-                                    clipboardManager.setPrimaryClip(ClipData.newPlainText("userId", it))
-                                    Toast.makeText(this@MainActivity, "Copied", Toast.LENGTH_SHORT).show()
+                        UpdateScope(userId, diff = { previousValue?.isEmpty() == currentValue?.isEmpty() }) {
+                            if (value != null) {
+                                MaterialButton(
+                                    id = "copyBtn",
+                                    attr = R.layout.style_view_material_textbutton,
+                                    lparams = widthMatchParent {
+                                        topMargin = 12.dp
+                                    }
+                                ) {
+                                    userId.observe {
+                                        text = it
+                                    }
+                                    onClick {
+                                        value?.let {
+                                            val clipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                                            clipboardManager.setPrimaryClip(ClipData.newPlainText("userId", it))
+                                            Toast.makeText(this@MainActivity, "Copied", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -225,11 +242,21 @@ class MainActivity : BaseActivity() {
     }
 }
 
+object UserItemUi : HikageBuilder {
+    override fun build(): Hikage.Delegate<*> = Hikageable {
+        TextView(id = "name")
+    }
+}
+
 class MainActivityViewModel : ViewModel() {
     private val _userIdState = MutableStateFlow<String?>(null)
     val userIdState: StateFlow<String?> = _userIdState
 
     fun generateUserId() {
-        _userIdState.value = UUID.randomUUID().toString()
+        viewModelScope.launch {
+            _userIdState.value = UUID.randomUUID().toString()
+            delay(5000)
+            _userIdState.value = null
+        }
     }
 }

@@ -47,6 +47,7 @@ dependencies {
     kotlinCompilerPluginClasspath(projects.hikageCompiler)
     ksp(projects.hikageCompiler)
     implementation(projects.hikageCore)
+    implementation(projects.hikageRecyclerview)
     implementation(projects.hikageExtension)
     implementation(projects.hikageExtensionBetterandroid)
     implementation(projects.hikageWidgetAndroidx)
