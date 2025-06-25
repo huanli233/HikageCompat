@@ -71,8 +71,9 @@ class MultiTypeRegister(val adapter: MultiTypeAdapter) {
 }
 
 inline fun RecyclerView.initMultiType(
+    data: List<Any> = mutableListOf(),
     builder: MultiTypeRegister.() -> Unit
-): MultiTypeAdapter = MultiTypeAdapter().apply {
+): MultiTypeAdapter = MultiTypeAdapter(data).apply {
     MultiTypeRegister(this).builder()
     this@initMultiType.adapter = this
 }
