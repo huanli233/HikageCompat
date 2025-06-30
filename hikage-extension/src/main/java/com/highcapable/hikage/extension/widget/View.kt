@@ -1,6 +1,8 @@
 package com.highcapable.hikage.extension.widget
 
+import android.graphics.drawable.Drawable
 import android.view.View
+import androidx.core.view.ViewCompat
 
 inline fun View.ifInEditMode(block: () -> Unit) {
     if (isInEditMode) block()
@@ -16,3 +18,6 @@ inline fun View.onLongClick(crossinline block: () -> Any) {
     }
 }
 
+fun View.setBackgroundCompat(background: Drawable?) {
+    ViewCompat.setBackground(this, background)
+}

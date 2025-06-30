@@ -1033,15 +1033,17 @@ class Hikage @PublishedApi internal constructor(
             if (attachToParent) parent?.addView(view)
         }
 
+        inline fun <reified V : View> startProvide(id: String?, view: V? = null) = startProvide(id, V::class.java, view)
+
         /**
          * Call to start providing a new view.
          * @param id the view id.
          * @param view the view instance.
          */
-        inline fun <reified V : View> startProvide(id: String?, view: V? = null) {
+        fun <V : View> startProvide(id: String?, viewClass: Class<V>, view: V? = null) {
             provideCount++
             if (provideCount > 1 && (parent == null || !attachToParent)) throw ProvideException(
-                "Provide view ${view?.javaClass ?: classOf<V>()}(${id?.let { "\"$it\""} ?: "<anonymous>"}) failed. ${
+                "Provide view ${view?.javaClass ?: viewClass}(${id?.let { "\"$it\""} ?: "<anonymous>"}) failed. ${
                     if (parent == null) "No parent view group found"
                     else "Parent view group declares attachToParent = false"
                 }, you can only provide one view for the root view."
